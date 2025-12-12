@@ -31,7 +31,33 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Verify compliance with all four core principles:
+
+### I. Code Quality
+- [ ] Linting and formatting tools configured
+- [ ] Type safety requirements defined (TypeScript strict mode, Python type hints, etc.)
+- [ ] Code review process established
+- [ ] Complexity limits defined (cyclomatic complexity < 15)
+
+### II. Testing Standards
+- [ ] Testing framework selected and configured
+- [ ] Test coverage target defined (minimum 80% for new code)
+- [ ] Test categories identified (unit, integration, contract, E2E, performance)
+- [ ] Test infrastructure setup planned
+
+### III. User Experience Consistency
+- [ ] Design system/component library selected (shadcn/ui for Next.js projects)
+- [ ] Styling approach defined (Tailwind CSS utility-first)
+- [ ] Accessibility standards defined (WCAG 2.1 Level AA minimum)
+- [ ] UX consistency requirements identified
+
+### IV. Performance Requirements
+- [ ] Performance budgets defined (page load < 2s, API p95 < 200ms, etc.)
+- [ ] Performance monitoring strategy planned
+- [ ] Performance testing approach defined
+- [ ] Core Web Vitals tracking planned
+
+**Note**: Any violations or deviations must be documented in the Complexity Tracking section below.
 
 ## Project Structure
 
