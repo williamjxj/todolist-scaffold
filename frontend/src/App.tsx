@@ -39,15 +39,19 @@ function App() {
   const displayError = error && error !== dismissedError ? error : null
 
   // Check if error is a connection error and provide helpful message
-  const isConnectionError = displayError?.toLowerCase().includes('cannot connect') || 
-                           displayError?.toLowerCase().includes('network error') ||
-                           displayError?.toLowerCase().includes('backend server')
+  const isConnectionError = displayError?.toLowerCase().includes('cannot connect') ||
+    displayError?.toLowerCase().includes('network error') ||
+    displayError?.toLowerCase().includes('backend server')
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">TODO List</h1>
+          <div className="flex items-center">
+            <img src="/logo.png" alt="Todo List Logo" className="h-10 w-10 mr-3" />
+            <h1 className="text-3xl font-bold text-gray-900">TODO List</h1>
+          </div>
+          <h3 className="text-xl font-bold underline">By William Jiang</h3>
           <p className="text-gray-600 mt-2">Manage your tasks efficiently</p>
         </header>
 

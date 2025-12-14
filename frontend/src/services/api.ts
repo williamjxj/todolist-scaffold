@@ -3,7 +3,7 @@ import type { TodoItem, TodoItemCreate, TodoItemUpdate } from '../types/todo'
 
 // Use relative URL to work with Vite proxy in development
 // In production, this would be set via environment variable
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL
 
 const api = axios.create({
   baseURL: API_BASE_URL,
