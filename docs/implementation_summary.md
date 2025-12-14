@@ -39,7 +39,15 @@ This document summarizes the changes made to the "Demo 1" Todo List Application 
 - Resolved a **404 error** where the frontend was requesting `/todos` instead of `/api/todos`.
 - The `.env.local` configuration ensures `api.ts` uses the correct base path.
 
-## 4. Verification
+## 4. Frontend Cleanup
+
+**Objective**: Remove unnecessary development dependencies.
+**Implementation**:
+
+- Uninstalled `autoprefixer` and `postcss` as they are handled internally by `@tailwindcss/vite` (Tailwind CSS v4).
+- Verified build process (`npm run build`) remains successful.
+
+## 5. Verification
 
 - **Backend**: Run `source backend/venv/bin/activate; ./run.sh` to start the server.
 - **Frontend**: Run `npm run dev` in `frontend/` (or serve dist) and observe the new tab icon.
