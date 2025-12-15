@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { Edit2, Trash2, Save, X } from 'lucide-react'
+import { AceternityButton } from './ui/aceternity-button'
+import { Button } from './ui/button'
 import type { TodoItem } from '../types/todo'
 
 interface TodoItemProps {
@@ -109,22 +112,26 @@ export const TodoItemComponent = ({
               </p>
             )}
             <div className="flex gap-2 mt-2">
-              <button
+              <AceternityButton
                 onClick={handleSave}
+                variant="edit"
                 disabled={loading || !editDescription.trim()}
-                className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 aria-label="Save changes"
+                className="text-sm px-4 py-2"
               >
+                <Save className="w-4 h-4" />
                 Save
-              </button>
-              <button
+              </AceternityButton>
+              <Button
                 onClick={handleCancel}
+                variant="outline"
                 disabled={loading}
-                className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:bg-gray-100"
                 aria-label="Cancel editing"
+                className="text-sm"
               >
+                <X className="w-4 h-4 mr-1" />
                 Cancel
-              </button>
+              </Button>
             </div>
           </div>
         ) : (
@@ -147,26 +154,30 @@ export const TodoItemComponent = ({
       {!isEditing && (
         <div className="flex gap-2 w-full sm:w-auto justify-end sm:justify-start">
           {onUpdate && (
-            <button
+            <AceternityButton
               onClick={() => setIsEditing(true)}
+              variant="edit"
               disabled={loading}
-              className="px-3 py-1 text-sm text-blue-600 hover:text-blue-800 disabled:text-gray-400"
               aria-label={`Edit "${todo.description}"`}
               title="Edit this TODO item"
+              className="text-sm px-4 py-2"
             >
+              <Edit2 className="w-4 h-4" />
               Edit
-            </button>
+            </AceternityButton>
           )}
           {onDelete && (
-            <button
+            <AceternityButton
               onClick={() => onDelete(todo.id)}
+              variant="delete"
               disabled={loading}
-              className="px-3 py-1 text-sm text-red-600 hover:text-red-800 disabled:text-gray-400"
               aria-label={`Delete "${todo.description}"`}
               title="Delete this TODO item"
+              className="text-sm px-4 py-2"
             >
+              <Trash2 className="w-4 h-4" />
               Delete
-            </button>
+            </AceternityButton>
           )}
         </div>
       )}

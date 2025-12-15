@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Plus } from 'lucide-react'
+import { AceternityButton } from './ui/aceternity-button'
 import type { TodoItemCreate } from '../types/todo'
 
 interface TodoFormProps {
@@ -61,14 +63,15 @@ export const TodoForm = ({ onSubmit, loading = false }: TodoFormProps) => {
           maxLength={500}
           aria-label="TODO item description"
         />
-        <button
+        <AceternityButton
           type="submit"
+          variant="add"
           disabled={loading || !description.trim()}
-          className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
           aria-label="Add TODO item"
         >
+          <Plus className="w-4 h-4" />
           {loading ? 'Adding...' : 'Add'}
-        </button>
+        </AceternityButton>
       </div>
       {error && (
         <p className="mt-2 text-sm text-red-600" role="alert">
