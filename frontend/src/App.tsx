@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ColourfulText } from './components/ui/colourful-text'
 import { TodoForm } from './components/TodoForm'
 import { TodoList } from './components/TodoList'
 import { ErrorMessage } from './components/ErrorMessage'
@@ -49,7 +50,9 @@ function App() {
         <header className="mb-8">
           <div className="flex items-center">
             <img src="/logo.png" alt="Todo List Logo" className="h-10 w-10 mr-3" />
-            <h1 className="text-3xl font-bold text-gray-900">TODO List</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              <ColourfulText text="TODO List" />
+            </h1>
           </div>
           <h3 className="text-xl font-bold underline">By William Jiang</h3>
           <p className="text-gray-600 mt-2">Manage your tasks efficiently</p>
