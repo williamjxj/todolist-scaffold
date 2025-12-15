@@ -1,9 +1,22 @@
+import os
+import sys
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.main import app
-from app.database import Base, get_db
+
+
+# Ensure the backend src/ directory is on sys.path so that
+# imports like `from app.main import app` work regardless of
+# the current working directory when pytest is invoked.
+_backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_src_dir = os.path.join(_backend_dir, "src")
+if _src_dir not in sys.path:
+    sys.path.insert(0, _src_dir)
+
+from app.main import app  # noqa: E402
+from app.database import Base, get_db  # noqa: E402
 
 # Test database (in-memory SQLite)
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"

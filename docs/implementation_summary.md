@@ -66,7 +66,31 @@ This document summarizes the changes made to the "Demo 1" Todo List Application 
   - Added `@` path aliases for cleaner imports
   - Migrated ESLint to the v9 flat config and kept tests/build green after the upgrades
 
-## 6. Verification
+## 6. Database configuration: SQLite ↔ PostgreSQL (local dev)
 
-- **Backend**: Run `source backend/venv/bin/activate; ./run.sh` to start the server.
+**Objective**: Allow the backend to switch between SQLite and PostgreSQL for local development, with PostgreSQL as the primary option for this feature.
+
+**Implementation**:
+
+- **New settings** (in `backend/src/app/config.py`):
+  - Added `DB_BACKEND` (defaults to `"sqlite"`) to indicate the active backend (`"sqlite"` or `"postgresql"`).
+  - Kept `DATABASE_URL` as the single source of truth for the SQLAlchemy connection string (defaults to `sqlite:///./todos.db`).
+- **Engine creation** (in `backend/src/app/database.py`):
+  - Updated engine creation to use `settings.DATABASE_URL` for all backends.
+  - Applied SQLite-specific `connect_args={"check_same_thread": False}` only when the URL starts with `sqlite`, so PostgreSQL connections work without special flags.
+- **Initialization**:
+  - `init_db()` now reports that tables were created in the “configured database” rather than assuming `todos.db`.
+
+**Usage (example)**:
+
+- For SQLite (existing default): no changes required.
+- For PostgreSQL on this MacBook Pro:
+  - Set environment variables (e.g. in your shell):  
+    - `DB_BACKEND=postgresql`  
+    - `DATABASE_URL=postgresql+psycopg://todo_user:YOUR_PASSWORD@localhost:5432/todo_app`
+  - Run the backend as usual; the app will connect to PostgreSQL via `DATABASE_URL`.
+
+## 7. Verification
+
+- **Backend**: Run `source backend/venv/bin/activate; ./run.sh` to start the server (with `DB_BACKEND` / `DATABASE_URL` set as desired).
 - **Frontend**: Run `npm run dev` in `frontend/` (or serve dist) and observe the new tab icon.
