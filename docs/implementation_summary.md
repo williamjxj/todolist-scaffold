@@ -47,7 +47,26 @@ This document summarizes the changes made to the "Demo 1" Todo List Application 
 - Uninstalled `autoprefixer` and `postcss` as they are handled internally by `@tailwindcss/vite` (Tailwind CSS v4).
 - Verified build process (`npm run build`) remains successful.
 
-## 5. Verification
+## 5. Modern UI & Frontend Upgrades
+
+**Objective**: Modernize the frontend stack and improve the TODO list UI/UX.
+**Implementation**:
+
+- **Upgraded tooling**:
+  - React from 18 → 19
+  - Tailwind CSS from 3.x → 4.x using `@tailwindcss/vite`
+  - Vite and Vitest to their current major versions
+- **Introduced design system primitives**:
+  - Added a shadcn-style `Button` component (`frontend/src/components/ui/button.tsx`)
+  - Configured `components.json` for shadcn/ui, including `lucide` icons and an Aceternity registry entry
+- **New Aceternity-style interactions**:
+  - Created `AceternityButton` (`frontend/src/components/ui/aceternity-button.tsx`) with animated gradients, shimmer, and press effects
+  - Wired these buttons into `TodoForm` (“Add”) and `TodoItem` (“Edit”, “Delete”, “Save”, “Cancel”) for a richer, more modern experience
+- **DX improvements**:
+  - Added `@` path aliases for cleaner imports
+  - Migrated ESLint to the v9 flat config and kept tests/build green after the upgrades
+
+## 6. Verification
 
 - **Backend**: Run `source backend/venv/bin/activate; ./run.sh` to start the server.
 - **Frontend**: Run `npm run dev` in `frontend/` (or serve dist) and observe the new tab icon.
