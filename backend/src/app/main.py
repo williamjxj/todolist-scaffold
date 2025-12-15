@@ -22,12 +22,20 @@ app.add_middleware(
 # Include routers
 app.include_router(todos.router, prefix="/api/todos", tags=["todos"])
 
+@app.get("/hey")
+async def hey():
+    """Hey endpoint"""
+    return {"message": "Hey there!"}
+
+@app.get("/docs")
+async def docs():
+    """Swagger UI documentation"""
+    return RedirectResponse(url="/docs")
 
 @app.get("/")
 async def root():
     """Root endpoint - health check"""
     return {"message": "TODO List API", "version": "1.0.0"}
-
 
 @app.get("/health")
 async def health_check():
