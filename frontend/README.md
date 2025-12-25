@@ -76,7 +76,7 @@ frontend/
 
 ## Configuration
 
-The API base URL is configured in `src/services/api.ts`. In development, it uses Vite's proxy (`/api`) which forwards requests to `http://localhost:8000`.
+The API base URL is configured in `src/services/api.ts`. In development, it uses Vite's proxy (`/api`) which forwards requests to `http://localhost:8173`.
 
 **Important**: Make sure the backend is running before starting the frontend!
 
@@ -86,12 +86,12 @@ If you see "Network Error" or "Cannot connect to backend server":
 
 1. **Check backend is running**: 
    ```bash
-   curl http://localhost:8000/health
+   curl http://localhost:8173/health
    ```
    Should return: `{"status":"healthy"}`
 
-2. **Verify backend is on correct port**: Backend should be on port 8000
+2. **Verify backend is on correct port**: Backend should be on port 8173
 
 3. **Check CORS configuration**: Backend allows `http://localhost:5173` in CORS settings
 
-4. **Try direct API call**: Open http://localhost:8000/docs in browser to verify backend is accessible
+4. **Try direct API call**: Open http://localhost:8173/docs in browser to verify backend is accessible

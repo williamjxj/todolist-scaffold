@@ -11,15 +11,19 @@ router = APIRouter()
 @router.get("/", response_model=List[TodoItemResponse])
 async def list_todos(
     completed: Optional[bool] = None,
+    priority: Optional[str] = None,
+    category: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
     """
     List all TODO items.
 
     - **completed**: Optional filter by completion status
+    - **priority**: Optional filter by priority
+    - **category**: Optional filter by category
     """
     service = TodoService(db)
-    return service.get_all(completed=completed)
+    return service.get_all(completed=completed, priority=priority, category=category)
 
 
 @router.post("/", response_model=TodoItemResponse, status_code=status.HTTP_201_CREATED)
@@ -34,7 +38,12 @@ async def create_todo(
     """
     service = TodoService(db)
     try:
-        return service.create(todo.description)
+        return service.create(
+            description=todo.description,
+            priority=todo.priority,
+            due_date=todo.due_date,
+            category=todo.category
+        )
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -70,7 +79,10 @@ async def update_todo(
         todo = service.update(
             id,
             description=todo_update.description,
-            completed=todo_update.completed
+            completed=todo_update.completed,
+            priority=todo_update.priority,
+            due_date=todo_update.due_date,
+            category=todo_update.category
         )
         if not todo:
             raise HTTPException(

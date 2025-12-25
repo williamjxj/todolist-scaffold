@@ -94,3 +94,20 @@ This document summarizes the changes made to the "Demo 1" Todo List Application 
 
 - **Backend**: Run `source backend/venv/bin/activate; ./run.sh` to start the server (with `DB_BACKEND` / `DATABASE_URL` set as desired).
 - **Frontend**: Run `npm run dev` in `frontend/` (or serve dist) and observe the new tab icon.
+- **Port Alignment**: Verified that frontend (port 5173) and backend (port 8173) communicate via the `/api` proxy.
+
+## 8. API Port Alignment & Proxy Optimization (December 24, 2025)
+
+**Objective**: Resolve a persistent 404/Connection Refused error where the frontend was configured to use port 8000, but the backend was running on port 8173.
+
+**Implementation**:
+
+- **Fixed Port Mismatch**:
+  - Updated `frontend/src/App.tsx` connection error messages to correctly report port `8173` if the backend is down.
+  - Corrected the suggested startup command in the error UI from port `8000` to `8173`.
+- **Proxy Configuration Alignment**:
+  - Updated `frontend/.env.local` to use `VITE_API_URL=/api`. This ensures the application uses the Vite development proxy (`vite.config.ts`), which is already correctly configured to forward requests to `http://localhost:8173`.
+  - This avoids hardcoding absolute URLs and ensures consistent behavior across different environments.
+- **Verification**:
+  - Verified end-to-end communication using a browser subagent.
+  - Confirmed that new TODO items are successfully created and persist after a page refresh.

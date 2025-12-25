@@ -1,8 +1,8 @@
 # API Reference
 
 **Feature**: TODO List Application  
-**Base URL**: `http://localhost:8000/api`  
-**Interactive Docs**: http://localhost:8000/docs
+**Base URL**: `http://localhost:8173/api`  
+**Interactive Docs**: http://localhost:8173/docs
 
 ## Endpoints
 
@@ -168,9 +168,9 @@ PATCH /api/todos/{id}/complete
 
 FastAPI automatically generates interactive API documentation:
 
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-- **OpenAPI Schema**: http://localhost:8000/openapi.json
+- **Swagger UI**: http://localhost:8173/docs
+- **ReDoc**: http://localhost:8173/redoc
+- **OpenAPI Schema**: http://localhost:8173/openapi.json
 
 You can test all endpoints directly from the Swagger UI.
 

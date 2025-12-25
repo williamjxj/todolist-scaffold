@@ -41,8 +41,8 @@ python init_db.py
 ```
 
 Backend will be available at:
-- **API**: http://localhost:8000
-- **API Docs**: http://localhost:8000/docs
+- **API**: http://localhost:8173
+- **API Docs**: http://localhost:8173/docs
 
 ### Frontend Setup
 
@@ -56,7 +56,7 @@ Frontend will be available at http://localhost:5173
 
 ### Verify Everything Works
 
-1. Check backend health: `curl http://localhost:8000/health`
+1. Check backend health: `curl http://localhost:8173/health`
 2. Open frontend: http://localhost:5173
 3. Create a TODO item and verify it appears
 
@@ -215,7 +215,7 @@ npm run format      # Format code
 
 **"Cannot connect to backend server"**
 - Ensure backend is running: `cd backend && ./check-backend.sh`
-- Check port 8000 is available: `lsof -i :8000`
+- Check port 8173 is available: `lsof -i :8173`
 - Verify database is initialized: `ls backend/src/todos.db`
 
 **"no such table: todos"**
@@ -229,7 +229,7 @@ npm run format      # Format code
 ### Frontend Issues
 
 **"Network Error" or CORS errors**
-- Verify backend is running on http://localhost:8000
+- Verify backend is running on http://localhost:8173
 - Check Vite proxy configuration in `vite.config.ts`
 - Ensure CORS origins include `http://localhost:5173`
 

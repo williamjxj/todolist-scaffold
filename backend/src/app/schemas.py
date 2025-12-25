@@ -9,6 +9,9 @@ class TodoItemCreate(BaseModel):
     description: str = Field(
         ..., min_length=1, max_length=500, description="TODO item description"
     )
+    priority: str = Field("Medium", description="Priority level (Low, Medium, High)")
+    due_date: Optional[datetime] = Field(None, description="Due date and time")
+    category: Optional[str] = Field(None, description="Category label")
 
 
 class TodoItemUpdate(BaseModel):
@@ -18,6 +21,9 @@ class TodoItemUpdate(BaseModel):
         None, min_length=1, max_length=500, description="Updated description"
     )
     completed: Optional[bool] = None
+    priority: Optional[str] = Field(None, description="Updated priority")
+    due_date: Optional[datetime] = Field(None, description="Updated due date")
+    category: Optional[str] = Field(None, description="Updated category")
 
 
 class TodoItemResponse(BaseModel):
@@ -26,6 +32,9 @@ class TodoItemResponse(BaseModel):
     id: int
     description: str
     completed: bool
+    priority: str
+    due_date: Optional[datetime]
+    category: Optional[str]
     created_at: datetime
     updated_at: datetime
 

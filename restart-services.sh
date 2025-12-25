@@ -4,10 +4,10 @@
 
 echo "🛑 Stopping services..."
 
-# Stop backend (port 8000)
-if lsof -ti :8000 > /dev/null 2>&1; then
-    echo "Stopping backend on port 8000..."
-    lsof -ti :8000 | xargs kill -9 2>/dev/null
+# Stop backend (port 8173)
+if lsof -ti :8173 > /dev/null 2>&1; then
+    echo "Stopping backend on port 8173..."
+    lsof -ti :8173 | xargs kill -9 2>/dev/null
     sleep 1
 fi
 
@@ -46,7 +46,7 @@ cd - > /dev/null
 echo ""
 echo "✅ Services started!"
 echo ""
-echo "Backend: http://localhost:8000"
+echo "Backend: http://localhost:8173"
 echo "Frontend: http://localhost:5173"
 echo ""
 echo "Backend PID: $BACKEND_PID"

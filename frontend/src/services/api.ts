@@ -1,9 +1,10 @@
 import axios from 'axios'
 import type { TodoItem, TodoItemCreate, TodoItemUpdate } from '../types/todo'
 
-// Use relative URL to work with Vite proxy in development
-// In production, this would be set via environment variable
-const API_BASE_URL = import.meta.env.VITE_API_URL
+// Use VITE_API_URL if provided, otherwise default to relative /api for Vite proxy
+// In production, setting VITE_API_URL to an absolute URL (e.g. https://api.yourdomain.com/api)
+// allows the frontend to communicate with an independent backend.
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -21,7 +22,7 @@ api.interceptors.response.use(
       throw new Error('Request timeout - please check if the backend server is running')
     }
     if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
-      throw new Error('Cannot connect to backend server. Make sure it is running on http://localhost:8000')
+      throw new Error('Cannot connect to backend server. Make sure it is running on http://localhost:8173')
     }
     throw error
   }
@@ -29,8 +30,12 @@ api.interceptors.response.use(
 
 export const todoApi = {
   // List all todos
-  getAll: async (completed?: boolean): Promise<TodoItem[]> => {
-    const params = completed !== undefined ? { completed } : {}
+  getAll: async (completed?: boolean, priority?: string, category?: string): Promise<TodoItem[]> => {
+    const params: any = {}
+    if (completed !== undefined) params.completed = completed
+    if (priority) params.priority = priority
+    if (category) params.category = category
+
     const response = await api.get<TodoItem[]>('/todos', { params })
     return response.data
   },

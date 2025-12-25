@@ -10,7 +10,11 @@ interface TodoFormProps {
 
 export const TodoForm = ({ onSubmit, loading = false }: TodoFormProps) => {
   const [description, setDescription] = useState('')
+  const [priority, setPriority] = useState('Medium')
+  const [dueDate, setDueDate] = useState('')
+  const [category, setCategory] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [showAdvanced, setShowAdvanced] = useState(false)
 
   const validateDescription = (desc: string): string | null => {
     const trimmed = desc.trim()
@@ -34,9 +38,18 @@ export const TodoForm = ({ onSubmit, loading = false }: TodoFormProps) => {
     }
 
     try {
-      await onSubmit({ description: description.trim() })
+      await onSubmit({
+        description: description.trim(),
+        priority,
+        due_date: dueDate || undefined,
+        category: category.trim() || undefined,
+      })
       setDescription('')
+      setPriority('Medium')
+      setDueDate('')
+      setCategory('')
       setError(null)
+      setShowAdvanced(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create todo')
     }
@@ -73,6 +86,52 @@ export const TodoForm = ({ onSubmit, loading = false }: TodoFormProps) => {
           {loading ? 'Adding...' : 'Add'}
         </AceternityButton>
       </div>
+
+      <div className="mt-2">
+        <button
+          type="button"
+          onClick={() => setShowAdvanced(!showAdvanced)}
+          className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+        >
+          {showAdvanced ? 'Hide options' : 'More options (Priority, Date, Category)'}
+        </button>
+      </div>
+
+      {showAdvanced && (
+        <div className="mt-3 p-4 bg-white border border-gray-200 rounded-lg shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Priority</label>
+            <select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+            >
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Due Date</label>
+            <input
+              type="datetime-local"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</label>
+            <input
+              type="text"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              placeholder="e.g. Work, Personal"
+              className="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+            />
+          </div>
+        </div>
+      )}
       {error && (
         <p className="mt-2 text-sm text-red-600" role="alert">
           {error}

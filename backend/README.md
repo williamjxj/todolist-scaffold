@@ -20,8 +20,8 @@ FastAPI backend for the TODO list application with SQLite database, comprehensiv
 ```bash
 # 1. Create and activate virtual environment
 cd backend
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+python -m venv .venv
+source .venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # 2. Install dependencies
 pip install -r requirements.txt
@@ -35,9 +35,9 @@ python init_db.py
 ```
 
 The API will be available at:
-- **API**: http://localhost:8000
-- **Interactive API Docs**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
+- **API**: http://localhost:8173
+- **Interactive API Docs**: http://localhost:8173/docs
+- **ReDoc**: http://localhost:8173/redoc
 
 ## Setup
 
@@ -48,13 +48,9 @@ The API will be available at:
 cd backend
 
 # Create virtual environment
-python -m venv venv
+python -m venv .venv
 
-# Activate virtual environment
-# On macOS/Linux:
-source venv/bin/activate
-# On Windows:
-venv\Scripts\activate
+source .venv/bin/activate
 ```
 
 **Why virtual environment?**
@@ -99,13 +95,13 @@ python init_db.py
 
 # Option 2: Run from src directory
 cd src
-uvicorn app.main:app --reload --port 8000
+uvicorn app.main:app --reload --port 8173
 
 # Option 3: Run from backend directory with PYTHONPATH
-PYTHONPATH=src uvicorn app.main:app --reload --port 8000
+PYTHONPATH=src uvicorn app.main:app --reload --port 8173
 
 # Option 4: Using Python module syntax
-python -m uvicorn app.main:app --reload --port 8000 --app-dir src
+python -m uvicorn app.main:app --reload --port 8173 --app-dir src
 ```
 
 **Important**: Make sure your virtual environment is activated before running the server!
@@ -121,11 +117,11 @@ python -m uvicorn app.main:app --reload --port 8000 --app-dir src
 ./check-backend.sh
 
 # Or manually test
-curl http://localhost:8000/health
+curl http://localhost:8173/health
 # Should return: {"status":"healthy"}
 
 # Or open in browser
-open http://localhost:8000/docs
+open http://localhost:8173/docs
 ```
 
 ## Testing
@@ -176,9 +172,9 @@ backend/
 ## API Documentation
 
 When the server is running, visit:
-- **Interactive API Docs (Swagger)**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-- **OpenAPI JSON**: http://localhost:8000/openapi.json
+- **Interactive API Docs (Swagger)**: http://localhost:8173/docs
+- **ReDoc**: http://localhost:8173/redoc
+- **OpenAPI JSON**: http://localhost:8173/openapi.json
 
 ## Troubleshooting
 
@@ -188,7 +184,7 @@ When the server is running, visit:
 
 **Solutions:**
 1. Check if backend is running: `./check-backend.sh`
-2. Verify port 8000 is available: `lsof -i :8000`
+2. Verify port 8173 is available: `lsof -i :8173`
 3. Check virtual environment is activated: `which python` should show `venv/bin/python`
 
 ### "no such table: todos"
@@ -214,8 +210,8 @@ When the server is running, visit:
 **Symptoms:** "Address already in use" error
 
 **Solutions:**
-1. Find process using port: `lsof -i :8000`
-2. Kill process: `lsof -ti :8000 | xargs kill -9`
+1. Find process using port: `lsof -i :8173`
+2. Kill process: `lsof -ti :8173 | xargs kill -9`
 3. Or use different port: `uvicorn app.main:app --reload --port 8001`
 
 ### Database Location Issues
@@ -241,7 +237,7 @@ Quick script to verify backend status:
 ```bash
 ./check-backend.sh
 ```
-Checks if port 8000 is in use and tests the health endpoint.
+Checks if port 8173 is in use and tests the health endpoint.
 
 ## Documentation
 

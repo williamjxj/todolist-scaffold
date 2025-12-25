@@ -4,7 +4,7 @@ import type { TodoItem } from '../types/todo'
 interface TodoListProps {
   todos: TodoItem[]
   onToggleComplete?: (id: number) => void
-  onUpdate?: (id: number, description: string) => void
+  onUpdate?: (id: number, updates: Partial<TodoItem>) => void
   onDelete?: (id: number) => void
   loading?: boolean
 }
