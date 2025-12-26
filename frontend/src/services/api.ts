@@ -1,10 +1,11 @@
 import axios from 'axios'
 import type { TodoItem, TodoItemCreate, TodoItemUpdate } from '../types/todo'
 
-// Use VITE_API_URL if provided, otherwise default to relative /api for Vite proxy
-// In production, setting VITE_API_URL to an absolute URL (e.g. https://api.yourdomain.com/api)
-// allows the frontend to communicate with an independent backend.
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
+// Use VITE_API_URL if provided, otherwise default to Render.com production URL
+// In development, set VITE_API_URL=/api to use Vite proxy (localhost:8173)
+// In production, VITE_API_URL should be set to https://todolist-scaffold.onrender.com/api
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://todolist-scaffold.onrender.com/api'
+const DEFAULT_API_URL = 'https://todolist-scaffold.onrender.com/api'
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -22,7 +23,8 @@ api.interceptors.response.use(
       throw new Error('Request timeout - please check if the backend server is running')
     }
     if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
-      throw new Error('Cannot connect to backend server. Make sure it is running on http://localhost:8173')
+      const apiUrl = import.meta.env.VITE_API_URL || DEFAULT_API_URL
+      throw new Error(`Cannot connect to backend server at ${apiUrl}`)
     }
     throw error
   }
@@ -37,12 +39,6 @@ export const todoApi = {
     if (category) params.category = category
 
     const response = await api.get<TodoItem[]>('/todos', { params })
-    return response.data
-  },
-
-  // Get single todo by ID
-  getById: async (id: number): Promise<TodoItem> => {
-    const response = await api.get<TodoItem>(`/todos/${id}`)
     return response.data
   },
 

@@ -106,6 +106,5 @@ export const useTodos = () => {
     updateTodo,
     deleteTodo,
     toggleComplete,
-    refreshTodos: loadTodos,
   }
 }

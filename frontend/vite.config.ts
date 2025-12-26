@@ -20,6 +20,10 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    // Proxy is only used in development (npm run dev)
+    // In production, set VITE_API_URL environment variable to the backend URL
+    // For local dev: VITE_API_URL=/api (uses this proxy)
+    // For production: VITE_API_URL=https://todolist-scaffold.onrender.com/api
     proxy: {
       '/api': {
         target: 'http://localhost:8173',

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Edit2, Trash2, Save, X } from 'lucide-react'
 import { AceternityButton } from './ui/aceternity-button'
 import { Button } from './ui/button'
+import { validateDescription } from '../lib/utils'
 import type { TodoItem } from '../types/todo'
 
 interface TodoItemProps {
@@ -25,17 +26,6 @@ export const TodoItemComponent = ({
   const [editDueDate, setEditDueDate] = useState(todo.due_date || '')
   const [editCategory, setEditCategory] = useState(todo.category || '')
   const [editError, setEditError] = useState<string | null>(null)
-
-  const validateDescription = (desc: string): string | null => {
-    const trimmed = desc.trim()
-    if (!trimmed) {
-      return 'Description cannot be empty or whitespace-only'
-    }
-    if (trimmed.length > 500) {
-      return 'Description cannot exceed 500 characters'
-    }
-    return null
-  }
 
   const handleSave = () => {
     setEditError(null)

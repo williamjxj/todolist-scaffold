@@ -367,3 +367,46 @@ This document summarizes the changes made to the "Demo 1" Todo List Application 
 - ✅ Optimized Vite configuration with explicit path resolution
 - ✅ Comprehensive Vercel deployment testing guide
 - ✅ Improved build consistency across environments
+
+## 12. Code Cleanup & Optimization (January 27, 2025)
+
+**Objective**: Remove unused code, eliminate duplicates, and improve code maintainability by keeping only actively used functions and components.
+
+**Implementation**:
+
+### 12.1 Frontend Cleanup
+
+- **Removed unused API endpoint**:
+  - Removed `getById` method from `frontend/src/services/api.ts` (never called by frontend)
+  - Backend endpoint `/api/todos/{id}` remains available for future use
+
+- **Removed duplicate validation function**:
+  - Extracted `validateDescription` function from `TodoForm.tsx` and `TodoItem.tsx` to shared utility `frontend/src/lib/utils.ts`
+  - Both components now import and use the shared validation function
+  - Eliminates code duplication and ensures consistent validation logic
+
+- **Removed unused hook export**:
+  - Removed `refreshTodos` export from `useTodos` hook (never used in `App.tsx`)
+  - Internal `loadTodos` function remains for error recovery scenarios
+
+- **Optimized error handling**:
+  - Extracted duplicate API URL constant to `DEFAULT_API_URL` variable
+  - Reduces duplication in error messages
+
+### 12.2 Backend Cleanup
+
+- **Removed test endpoint**:
+  - Removed `/hey` test endpoint from `backend/src/app/main.py` (unused in production)
+
+- **Removed redundant endpoint**:
+  - Removed `/docs` endpoint that redirected to `/docs` (FastAPI provides this automatically via Swagger UI)
+
+- **Cleaned up imports**:
+  - Removed unused `RedirectResponse` import from `main.py`
+
+**Key Features**:
+- ✅ Eliminated code duplication (validation function)
+- ✅ Removed unused API endpoints and exports
+- ✅ Improved code maintainability through shared utilities
+- ✅ Cleaner backend with only production-necessary endpoints
+- ✅ Consistent error handling with shared constants

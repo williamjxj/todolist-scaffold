@@ -62,10 +62,18 @@ function App() {
           <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <p className="text-yellow-800 font-semibold">Backend Connection Issue</p>
             <p className="text-yellow-700 text-sm mt-1">
-              Make sure the backend server is running on <code className="bg-yellow-100 px-1 rounded">http://localhost:8173</code>
-            </p>
-            <p className="text-yellow-700 text-sm mt-1">
-              Run: <code className="bg-yellow-100 px-1 rounded">cd backend/src && uvicorn app.main:app --reload --port 8173</code>
+              Cannot connect to backend API. 
+              {import.meta.env.VITE_API_URL?.includes('localhost') ? (
+                <>
+                  Make sure the backend server is running on <code className="bg-yellow-100 px-1 rounded">http://localhost:8173</code>
+                  <br />
+                  Run: <code className="bg-yellow-100 px-1 rounded">cd backend/src && uvicorn app.main:app --reload --port 8173</code>
+                </>
+              ) : (
+                <>
+                  {' '}Backend URL: <code className="bg-yellow-100 px-1 rounded">{import.meta.env.VITE_API_URL || 'https://todolist-scaffold.onrender.com/api'}</code>
+                </>
+              )}
             </p>
           </div>
         )}

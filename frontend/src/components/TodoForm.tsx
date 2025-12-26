@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { AceternityButton } from './ui/aceternity-button'
+import { validateDescription } from '../lib/utils'
 import type { TodoItemCreate } from '../types/todo'
 
 interface TodoFormProps {
@@ -15,17 +16,6 @@ export const TodoForm = ({ onSubmit, loading = false }: TodoFormProps) => {
   const [category, setCategory] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [showAdvanced, setShowAdvanced] = useState(false)
-
-  const validateDescription = (desc: string): string | null => {
-    const trimmed = desc.trim()
-    if (!trimmed) {
-      return 'Description cannot be empty or whitespace-only'
-    }
-    if (trimmed.length > 500) {
-      return 'Description cannot exceed 500 characters'
-    }
-    return null
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

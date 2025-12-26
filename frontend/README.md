@@ -76,14 +76,30 @@ frontend/
 
 ## Configuration
 
-The API base URL is configured in `src/services/api.ts`. In development, it uses Vite's proxy (`/api`) which forwards requests to `http://localhost:8173`.
+The API base URL is configured via the `VITE_API_URL` environment variable in `src/services/api.ts`.
 
-**Important**: Make sure the backend is running before starting the frontend!
+### Environment Variables
+
+Create a `.env.local` file in the `frontend/` directory:
+
+**For local development:**
+```bash
+VITE_API_URL=/api
+```
+This uses Vite's proxy (configured in `vite.config.ts`) which forwards requests to `http://localhost:8173`.
+
+**For production:**
+```bash
+VITE_API_URL=https://todolist-scaffold.onrender.com/api
+```
+
+**Default (if not set):** The app defaults to `https://todolist-scaffold.onrender.com/api` (production URL).
 
 ### Troubleshooting Network Errors
 
 If you see "Network Error" or "Cannot connect to backend server":
 
+**Local Development:**
 1. **Check backend is running**: 
    ```bash
    curl http://localhost:8173/health
@@ -95,3 +111,8 @@ If you see "Network Error" or "Cannot connect to backend server":
 3. **Check CORS configuration**: Backend allows `http://localhost:5173` in CORS settings
 
 4. **Try direct API call**: Open http://localhost:8173/docs in browser to verify backend is accessible
+
+**Production:**
+1. **Check Render.com backend**: Visit https://todolist-scaffold.onrender.com/health
+2. **Verify CORS**: Ensure your frontend domain is allowed in backend CORS settings
+3. **Check network tab**: Verify API requests are going to the correct URL

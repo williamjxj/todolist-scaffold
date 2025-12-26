@@ -1,6 +1,5 @@
 import logging
 from fastapi import FastAPI
-from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.api.routes import todos
@@ -37,16 +36,6 @@ async def startup_event():
         # Don't raise exception - allow app to start but log the error
         # This allows the app to start even if DB is temporarily unavailable
         # Individual requests will handle connection errors
-
-@app.get("/hey")
-async def hey():
-    """Hey endpoint"""
-    return {"message": "Hey there!"}
-
-@app.get("/docs")
-async def docs():
-    """Swagger UI documentation"""
-    return RedirectResponse(url="/docs")
 
 @app.get("/")
 async def root():
