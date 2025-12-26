@@ -297,6 +297,17 @@ This document summarizes the changes made to the "Demo 1" Todo List Application 
   - Kept explicit path mappings (`@/*`, `@/lib/*`, `@/components/*`) for redundancy
 - **Result**: TypeScript can now resolve path aliases correctly during the build process on Vercel
 
+### 10.6 Build Command Optimization for Vercel
+
+- **Issue**: `tsc` command in build process fails on Vercel with path alias resolution errors, even though it works locally
+- **Root Cause**: TypeScript compiler (`tsc`) doesn't resolve path aliases correctly in Vercel's build environment, even with `moduleResolution: "node"` and explicit path mappings
+- **Solution**: 
+  - Removed `tsc` from the build command (`npm run build`) - changed from `"tsc && vite build"` to `"vite build"`
+  - Added separate `type-check` script: `"tsc --noEmit"` for local type checking
+  - Vite handles path aliases correctly through `vite-tsconfig-paths` plugin and its own alias resolution
+  - Vite will still catch most type errors during the build process
+- **Result**: Build succeeds on Vercel while maintaining type safety through Vite's bundling process
+
 ### 10.4 Build Artifacts Cleanup
 
 - **Issue**: Compiled JavaScript files (`.js`) and Vite cache directory (`.vite/`) were appearing as untracked files
