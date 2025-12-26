@@ -287,6 +287,16 @@ This document summarizes the changes made to the "Demo 1" Todo List Application 
   - Added `types: ["vite/client"]` for Vite type definitions
 - **Result**: More explicit path resolution helps TypeScript resolve aliases correctly in Vercel's build environment
 
+### 10.5 TypeScript Module Resolution Fix for Vercel
+
+- **Issue**: TypeScript compiler (`tsc`) on Vercel couldn't resolve `@/lib/utils` path alias even with explicit path mappings
+- **Root Cause**: `moduleResolution: "bundler"` doesn't work well with `tsc` for path resolution in Vercel's build environment
+- **Solution**: 
+  - Changed `moduleResolution` from `"bundler"` to `"node"` in `tsconfig.json` for better compatibility with TypeScript's path resolution
+  - Added `vite-tsconfig-paths` plugin to `vite.config.ts` to ensure Vite resolves TypeScript paths from `tsconfig.json`
+  - Kept explicit path mappings (`@/*`, `@/lib/*`, `@/components/*`) for redundancy
+- **Result**: TypeScript can now resolve path aliases correctly during the build process on Vercel
+
 ### 10.4 Build Artifacts Cleanup
 
 - **Issue**: Compiled JavaScript files (`.js`) and Vite cache directory (`.vite/`) were appearing as untracked files
