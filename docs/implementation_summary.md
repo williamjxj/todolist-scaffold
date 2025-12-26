@@ -286,3 +286,12 @@ This document summarizes the changes made to the "Demo 1" Todo List Application 
   - Added `allowSyntheticDefaultImports: true` for React import compatibility
   - Added `types: ["vite/client"]` for Vite type definitions
 - **Result**: More explicit path resolution helps TypeScript resolve aliases correctly in Vercel's build environment
+
+### 10.4 Build Artifacts Cleanup
+
+- **Issue**: Compiled JavaScript files (`.js`) and Vite cache directory (`.vite/`) were appearing as untracked files
+- **Solution**: 
+  - Updated `.gitignore` to exclude:
+    - `frontend/.vite/` (Vite cache directory)
+    - `frontend/src/**/*.js` (compiled JavaScript output - TypeScript source files should be used instead)
+- **Result**: Prevents accidental commits of build artifacts and keeps repository clean

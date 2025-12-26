@@ -118,6 +118,10 @@ Thumbs.db
 backend/venv/
 frontend/dist/
 frontend/build/
+frontend/.vite/
+
+# Compiled JavaScript files (TypeScript source files should be used instead)
+frontend/src/**/*.js
 
 # William added
 .obsidian/
