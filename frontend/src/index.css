@@ -38,6 +38,29 @@
   .animate-shimmer {
     animation: shimmer 0.6s ease-in-out;
   }
+
+  .ticker-container {
+    @apply relative overflow-hidden whitespace-nowrap;
+    mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+  }
+
+  .ticker-content {
+    @apply flex items-center w-max;
+    animation: ticker-scroll 60s linear infinite;
+  }
+
+  .ticker-content:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes ticker-scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
 }
 
 body {
