@@ -235,3 +235,42 @@ This document summarizes the changes made to the "Demo 1" Todo List Application 
 - Existing tables remain untouched
 - Application connects to Supabase on startup
 - Health check endpoints verify connectivity
+
+## 10. Vercel Deployment Configuration (January 27, 2025)
+
+**Objective**: Fix build errors and configure the frontend for successful deployment on Vercel.
+
+**Implementation**:
+
+### 10.1 Import Path Resolution Fix
+
+- **Issue**: Build failed on Vercel with error `Could not resolve "../../lib/utils"` from component files
+- **Root Cause**: Relative import paths (`../../lib/utils`) don't resolve correctly in Vite's production build on Vercel
+- **Solution**: 
+  - Updated `frontend/src/components/ui/aceternity-button.tsx` to use path alias `@/lib/utils` instead of relative path
+  - Updated `frontend/src/components/ui/button.tsx` to use path alias `@/lib/utils` instead of relative path
+  - Path alias `@` is already configured in `vite.config.ts` pointing to `./src`
+
+### 10.2 Vercel Configuration
+
+- **Created** `frontend/vercel.json`:
+  - Framework preset: `vite`
+  - Build command: `npm run build`
+  - Output directory: `dist`
+  - Development command: `npm run dev`
+  - Install command: `npm install`
+
+**Deployment Settings**:
+- Framework Preset: **Vite** (recommended for auto-detection and optimizations)
+- Root Directory: **frontend** (required since frontend is in a subdirectory)
+- Build settings are auto-detected when using Vite preset
+
+**Key Features**:
+- ✅ Path aliases ensure consistent imports across development and production
+- ✅ Vercel configuration file provides explicit build settings
+- ✅ Framework preset enables Vite-specific optimizations
+
+**Usage**:
+- Deploy to Vercel with Framework Preset: **Vite**
+- Set Root Directory to: **frontend**
+- Build should succeed with fixed import paths
