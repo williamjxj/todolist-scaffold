@@ -111,3 +111,127 @@ This document summarizes the changes made to the "Demo 1" Todo List Application 
 - **Verification**:
   - Verified end-to-end communication using a browser subagent.
   - Confirmed that new TODO items are successfully created and persist after a page refresh.
+
+## 9. Supabase Cloud Database Migration (January 27, 2025)
+
+**Objective**: Migrate the backend from local PostgreSQL to cloud-hosted Supabase, enabling multi-environment access, cloud deployment, and managed database services while preserving existing data and protecting existing database tables.
+
+**Implementation**:
+
+### 9.1 Core Infrastructure
+
+- **Database Connection** (`backend/src/app/database.py`):
+  - Enhanced engine creation to automatically add `sslmode=require` for Supabase connections
+  - Added `verify_connection()` function with connection time logging (target: < 5 seconds)
+  - Implemented comprehensive error handling for connection failures
+  - Added connection verification on application startup and health check endpoints
+
+- **Configuration** (`backend/src/app/config.py`):
+  - Added `SUPABASE_URL` and `SUPABASE_KEY` environment variables (optional, for future features)
+  - Enhanced `CORS_ORIGINS` validator to handle empty strings, JSON arrays, and comma-separated strings
+  - Added `DATABASE_URL` validator with Supabase-specific validation and SSL warnings
+  - Fixed type hints for Python 3.9 compatibility (`Optional[str]` instead of `str | None`)
+  - Added support for extra environment variables (`PORT`, `DATABASE_URL_MIGRATION`)
+
+- **Health Checks** (`backend/src/app/main.py`):
+  - Added `/health` endpoint with database connectivity status
+  - Added `/health/db` endpoint with detailed database connection information (type, connection time)
+  - Added startup event to verify database connection on application start
+
+### 9.2 Safe Table Creation
+
+- **Schema Initialization** (`backend/init_db.py`):
+  - Implemented safe table creation that detects existing tables (`patients`, `migration_checkpoints`, `alembic_version`)
+  - Only creates the `todos` table without modifying existing tables
+  - Automatic Supabase detection and appropriate handling
+  - Clear logging of existing tables and creation status
+
+### 9.3 Data Migration Script
+
+- **Migration Tool** (`backend/migrate_to_supabase.py`):
+  - Complete migration script to transfer todos from local PostgreSQL to Supabase
+  - Reads from local PostgreSQL using `LOCAL_POSTGRES_URL` environment variable
+  - Writes to Supabase with field mapping (id, description, completed, priority, due_date, category, timestamps)
+  - Data validation: record count comparison and field-level integrity checks
+  - Progress logging and error handling with rollback guidance
+  - Supports up to 10,000 records with batch processing
+
+### 9.4 Performance Monitoring
+
+- **Connection Performance** (`backend/src/app/database.py`):
+  - Connection time logging with warnings if > 5 seconds
+  - Database type detection and logging (SQLite, PostgreSQL, Supabase)
+
+- **Query Performance** (`backend/src/app/services/todo_service.py`):
+  - Query timing for `get_all()` operations
+  - Warnings for queries exceeding 100ms (p95 target)
+
+### 9.5 Testing Infrastructure
+
+- **Integration Tests**:
+  - `backend/tests/integration/test_supabase_connection.py` - Connection verification tests
+  - `backend/tests/integration/test_todos_supabase.py` - CRUD operations against Supabase
+  - `backend/tests/integration/test_migration_supabase.py` - End-to-end migration tests
+
+- **Unit Tests**:
+  - `backend/tests/unit/test_database_supabase.py` - Connection error handling
+  - `backend/tests/unit/test_migration_read.py` - Migration data reading logic
+  - `backend/tests/unit/test_migration_write.py` - Migration data writing logic
+  - `backend/tests/unit/test_config_supabase.py` - Supabase configuration validation
+  - `backend/tests/unit/test_config_environments.py` - Environment-specific configuration
+
+### 9.6 Documentation Updates
+
+- **README Updates**:
+  - Updated `backend/README.md` with Supabase setup instructions
+  - Added database configuration section covering SQLite, local PostgreSQL, and Supabase
+  - Updated troubleshooting section with Supabase-specific issues
+
+- **Deployment Guide**:
+  - Updated `docs/DEPLOYMENT.md` with Render cloud deployment instructions
+  - Added Supabase environment variable configuration
+  - Included health check verification steps
+
+- **Quick Start Guide**:
+  - Updated `docs/START-BACKEND.md` with Supabase configuration steps
+  - Added migration script usage instructions
+
+- **Configuration Template**:
+  - Created `backend/.env.template` with Supabase configuration examples
+  - Included examples for dev, staging, and production environments
+
+- **Quickstart Documentation**:
+  - Enhanced `specs/002-supabase-migration/quickstart.md` with:
+    - Environment-specific configuration examples
+    - Enhanced troubleshooting section
+    - Configuration error handling guidance
+
+### 9.7 Dependencies
+
+- Added `supabase>=2.0.0` to `backend/requirements.txt` (optional, for future features like auth, storage, realtime)
+- Verified `psycopg[binary]` dependency for PostgreSQL/Supabase connections
+
+### 9.8 Schema Migration Compatibility
+
+- Updated `backend/migrate_schema.py` to detect and work with Supabase
+- Maintains compatibility with SQLite and PostgreSQL
+
+**Key Features**:
+- ✅ Multi-app database pattern: `todos` table added alongside existing tables without modification
+- ✅ Safe table creation: Protects existing tables (`patients`, `migration_checkpoints`, `alembic_version`)
+- ✅ Data migration: Complete script with validation and error handling
+- ✅ Performance monitoring: Connection and query time tracking
+- ✅ Comprehensive testing: Integration and unit tests for all components
+- ✅ Cloud deployment ready: Render deployment documentation and configuration
+
+**Usage**:
+- Configure `DATABASE_URL` in `backend/.env` with Supabase connection string
+- Run `python3 backend/init_db.py` to create the `todos` table
+- Use `python3 backend/migrate_to_supabase.py` to migrate data from local PostgreSQL
+- Deploy to Render with Supabase `DATABASE_URL` configured
+
+**Verification**:
+- Todos table successfully created in Supabase
+- Existing tables remain untouched
+- Application connects to Supabase on startup
+- Health check endpoints verify connectivity

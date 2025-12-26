@@ -17,10 +17,18 @@ from app.config import settings
 def migrate():
     print(f"Checking schema for database: {settings.DATABASE_URL}")
     
+    # Detect database type
+    is_supabase = settings.DATABASE_URL and "supabase" in settings.DATABASE_URL.lower()
+    is_postgresql = settings.DATABASE_URL.startswith("postgresql")
+    
+    if is_supabase:
+        print("Detected Supabase database. Using PostgreSQL-compatible schema migration.")
+    
     with engine.connect() as conn:
         # Check for missing columns
         existing_columns = []
-        if settings.DATABASE_URL.startswith("postgresql"):
+        if is_postgresql:
+            # Works for both PostgreSQL and Supabase
             result = conn.execute(text("""
                 SELECT column_name 
                 FROM information_schema.columns 

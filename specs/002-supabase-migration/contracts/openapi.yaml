@@ -1,0 +1,419 @@
+openapi: 3.1.0
+info:
+  title: TODO List API
+  description: |
+    RESTful API for managing TODO items. This is a simple CRUD API demonstrating
+    FastAPI backend integration with React frontend, backed by Supabase cloud database.
+    
+    **Features:**
+    - Create, read, update, and delete TODO items
+    - Mark items as complete/incomplete
+    - Set priority levels (Low, Medium, High)
+    - Set due dates and categories
+    - Validation for empty descriptions
+    - Support for Unicode, emojis, and multi-line text
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+  - url: http://localhost:8000/api
+    description: Local development server with /api prefix
+  - url: https://your-render-app.onrender.com
+    description: Production server (Render deployment)
+
+tags:
+  - name: todos
+    description: TODO item operations
+
+paths:
+  /api/todos:
+    get:
+      tags:
+        - todos
+      summary: List all TODO items
+      description: |
+        Retrieve all TODO items. Returns both completed and pending items.
+        Can be filtered by completion status using query parameters.
+      operationId: listTodos
+      parameters:
+        - name: completed
+          in: query
+          description: Filter by completion status
+          required: false
+          schema:
+            type: boolean
+          example: false
+        - name: priority
+          in: query
+          description: Filter by priority level
+          required: false
+          schema:
+            type: string
+            enum: [Low, Medium, High]
+          example: Medium
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TodoItemResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    
+    post:
+      tags:
+        - todos
+      summary: Create a new TODO item
+      description: |
+        Create a new TODO item with a description. The description must not be
+        empty or whitespace-only. Optional fields include priority, due date, and category.
+      operationId: createTodo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoItemCreate'
+            example:
+              description: "Buy groceries"
+              priority: "Medium"
+              due_date: "2025-02-01T12:00:00Z"
+              category: "Shopping"
+      responses:
+        '201':
+          description: TODO item created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoItemResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /api/todos/{id}:
+    get:
+      tags:
+        - todos
+      summary: Get a TODO item by ID
+      description: Retrieve a single TODO item by its unique identifier.
+      operationId: getTodo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: TODO item ID
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoItemResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    
+    put:
+      tags:
+        - todos
+      summary: Update a TODO item
+      description: |
+        Update a TODO item. Can update description, completion status, priority, due date, category, or any combination.
+        All fields are optional - only provided fields will be updated.
+      operationId: updateTodo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: TODO item ID
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoItemUpdate'
+            examples:
+              updateDescription:
+                value:
+                  description: "Updated task description"
+              toggleComplete:
+                value:
+                  completed: true
+              updatePriority:
+                value:
+                  priority: "High"
+              updateAll:
+                value:
+                  description: "Updated description"
+                  completed: true
+                  priority: "High"
+                  due_date: "2025-02-15T12:00:00Z"
+                  category: "Work"
+      responses:
+        '200':
+          description: TODO item updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoItemResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    
+    delete:
+      tags:
+        - todos
+      summary: Delete a TODO item
+      description: Delete a TODO item by its unique identifier.
+      operationId: deleteTodo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: TODO item ID
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '204':
+          description: TODO item deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /api/todos/{id}/complete:
+    patch:
+      tags:
+        - todos
+      summary: Toggle TODO item completion status
+      description: |
+        Toggle the completion status of a TODO item. If currently pending,
+        marks as completed. If currently completed, marks as pending.
+      operationId: toggleTodoComplete
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: TODO item ID
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: Completion status toggled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoItemResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+components:
+  schemas:
+    TodoItemCreate:
+      type: object
+      required:
+        - description
+      properties:
+        description:
+          type: string
+          minLength: 1
+          description: |
+            The TODO item description. Must not be empty or whitespace-only.
+            Supports Unicode characters, emojis, and multi-line text.
+          example: "Buy groceries and cook dinner"
+        priority:
+          type: string
+          enum: [Low, Medium, High]
+          default: Medium
+          description: Priority level of the task
+          example: Medium
+        due_date:
+          type: string
+          format: date-time
+          nullable: true
+          description: Optional due date for the task (ISO 8601)
+          example: "2025-02-01T12:00:00Z"
+        category:
+          type: string
+          nullable: true
+          description: Optional category classification for the task
+          example: "Shopping"
+    
+    TodoItemUpdate:
+      type: object
+      properties:
+        description:
+          type: string
+          minLength: 1
+          description: |
+            Updated description. Must not be empty or whitespace-only if provided.
+            Supports Unicode characters, emojis, and multi-line text.
+          example: "Buy groceries, cook dinner, and clean kitchen"
+        completed:
+          type: boolean
+          description: Updated completion status
+          example: true
+        priority:
+          type: string
+          enum: [Low, Medium, High]
+          description: Updated priority level
+          example: High
+        due_date:
+          type: string
+          format: date-time
+          nullable: true
+          description: Updated due date for the task (ISO 8601). Set to null to remove.
+          example: "2025-02-15T12:00:00Z"
+        category:
+          type: string
+          nullable: true
+          description: Updated category classification. Set to null to remove.
+          example: "Work"
+    
+    TodoItemResponse:
+      type: object
+      required:
+        - id
+        - description
+        - completed
+        - priority
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the TODO item
+          example: 1
+        description:
+          type: string
+          description: The TODO item description
+          example: "Buy groceries"
+        completed:
+          type: boolean
+          description: Whether the item is completed
+          example: false
+        priority:
+          type: string
+          enum: [Low, Medium, High]
+          description: Priority level of the task
+          example: Medium
+        due_date:
+          type: string
+          format: date-time
+          nullable: true
+          description: Optional due date for the task (ISO 8601)
+          example: "2025-02-01T12:00:00Z"
+        category:
+          type: string
+          nullable: true
+          description: Optional category classification for the task
+          example: "Shopping"
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the item was created (ISO 8601)
+          example: "2025-01-27T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the item was last updated (ISO 8601)
+          example: "2025-01-27T10:35:00Z"
+    
+    Error:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
+          description: Error message
+          example: "TODO item not found"
+
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            detail: "TODO item with id 1 not found"
+    
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    loc:
+                      type: array
+                      items:
+                        type: string
+                    msg:
+                      type: string
+                    type:
+                      type: string
+          example:
+            detail:
+              - loc: ["body", "description"]
+                msg: "ensure this value has at least 1 characters"
+                type: "value_error.any_str.min_length"
+    
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            detail: "An internal server error occurred"
+    
+    ServiceUnavailable:
+      description: Service unavailable (e.g., Supabase connection failure)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            detail: "Database connection failed. Please try again later."
+

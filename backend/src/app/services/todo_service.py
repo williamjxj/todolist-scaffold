@@ -1,7 +1,11 @@
+import logging
+import time
 from sqlalchemy.orm import Session
 from typing import Optional, List
 from datetime import datetime
 from app.models import TodoItem
+
+logger = logging.getLogger(__name__)
 
 
 class TodoService:
@@ -12,6 +16,7 @@ class TodoService:
 
     def get_all(self, completed: Optional[bool] = None, priority: Optional[str] = None, category: Optional[str] = None) -> List[TodoItem]:
         """Get all TODO items, with optional filters"""
+        start_time = time.time()
         query = self.db.query(TodoItem)
         if completed is not None:
             query = query.filter(TodoItem.completed == completed)
@@ -19,7 +24,16 @@ class TodoService:
             query = query.filter(TodoItem.priority == priority)
         if category is not None:
             query = query.filter(TodoItem.category == category)
-        return query.order_by(TodoItem.created_at.desc()).all()
+        result = query.order_by(TodoItem.created_at.desc()).all()
+        query_time = time.time() - start_time
+        
+        # Log performance for Supabase queries (target: < 100ms p95)
+        if query_time > 0.1:  # 100ms
+            logger.warning(f"Query took {query_time:.3f}s (target: < 100ms)")
+        else:
+            logger.debug(f"Query completed in {query_time:.3f}s")
+        
+        return result
 
     def get_by_id(self, id: int) -> Optional[TodoItem]:
         """Get a TODO item by ID"""

@@ -32,7 +32,13 @@ pip install -r requirements.txt
 
 ### Step 3: Configure the Database Backend
 
-By default the app uses a local SQLite file. To switch to PostgreSQL 17 running on this MacBook Pro:
+The app supports three database options:
+
+#### Option A: SQLite (Default)
+
+No configuration needed. Database is created automatically when you run `python3 init_db.py`.
+
+#### Option B: Local PostgreSQL
 
 1. Ensure PostgreSQL is installed and running.
 2. Create a database and user (example):
@@ -49,28 +55,43 @@ By default the app uses a local SQLite file. To switch to PostgreSQL 17 running 
    DATABASE_URL="postgresql+psycopg://todo_user:YOUR_PASSWORD@localhost:5432/todo_app"
    ```
 
-   - `backend/src/app/config.py` always reads `backend/.env`, so this will apply whether you run `./run.sh` or `uvicorn` manually.
+#### Option C: Supabase (Cloud Database)
 
-4. Initialize the database schema (PostgreSQL or SQLite, depending on `.env`):
+1. Get your Supabase connection string from the Supabase dashboard (Settings → Database)
+2. Edit `backend/.env`:
+
+   ```env
+   DB_BACKEND=postgresql
+   DATABASE_URL="postgresql+psycopg://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres?sslmode=require"
+   SUPABASE_URL="https://[project-ref].supabase.co"
+   SUPABASE_KEY="[your-anon-key]"
+   ```
+
+**Note:** `backend/src/app/config.py` always reads `backend/.env`, so this will apply whether you run `./run.sh` or `uvicorn` manually.
+
+4. Initialize the database schema:
 
    ```bash
    cd backend
    source venv/bin/activate
-   python init_db.py
+   python3 init_db.py
    ```
 
-   - For PostgreSQL, this creates the `todos` table in your `todo_app` database.
-   - For SQLite, it creates `todos.db` in `backend/src/`.
+   - For SQLite: Creates `todos.db` in `backend/src/`
+   - For PostgreSQL: Creates the `todos` table in your database
+   - For Supabase: Creates the `todos` table and protects existing tables (patients, migration_checkpoints, alembic_version)
 
-5. (Optional) Migrate existing SQLite todos into PostgreSQL:
+5. (Optional) Migrate existing data:
 
-   ```bash
-   cd backend
-   source venv/bin/activate
-   python init_db.py --migrate-from-sqlite
-   ```
-
-   - This reads from `sqlite:///./todos.db` and upserts rows into the configured `DATABASE_URL` (recommended when moving long-lived local data).
+   - **SQLite to PostgreSQL/Supabase:**
+     ```bash
+     python3 init_db.py --migrate-from-sqlite
+     ```
+   - **Local PostgreSQL to Supabase:**
+     ```bash
+     export LOCAL_POSTGRES_URL="postgresql+psycopg://user:password@localhost:5432/database"
+     python3 migrate_to_supabase.py
+     ```
 
 ### Step 4: Start the Server
 

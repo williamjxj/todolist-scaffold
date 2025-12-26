@@ -1,10 +1,12 @@
 # TODO List Backend
 
-FastAPI backend for the TODO list application with SQLite database, comprehensive error handling, and automatic API documentation.
+FastAPI backend for the TODO list application with support for SQLite, local PostgreSQL, and cloud Supabase databases. Features comprehensive error handling, automatic API documentation, and cloud deployment readiness.
 
 ## ✨ Recent Improvements
 
-- ✅ **Fixed database initialization** - Database now created in correct location (`src/todos.db`)
+- ✅ **Supabase Cloud Database Support** - Migrated to cloud-hosted Supabase for multi-environment access
+- ✅ **Safe Table Creation** - Protects existing database tables during schema initialization
+- ✅ **Migration Script** - Automated data migration from local PostgreSQL to Supabase
 - ✅ **Enhanced error handling** - Better error messages and validation
 - ✅ **Improved CORS configuration** - Supports multiple development origins
 - ✅ **Helper scripts** - `run.sh` for easy startup, `check-backend.sh` for status verification
@@ -75,19 +77,70 @@ pip install -r requirements-dev.txt
 - `pydantic` - Data validation
 - See `requirements.txt` for full list
 
-### 3. Initialize Database
+### 3. Database Configuration
+
+The application supports three database backends:
+
+#### Option A: SQLite (Default - Local Development)
+
+No configuration needed. The database file is created automatically:
+
+```bash
+python3 init_db.py
+```
+
+This creates `backend/src/todos.db` (SQLite file).
+
+#### Option B: Local PostgreSQL
+
+1. Ensure PostgreSQL is installed and running
+2. Create database and user:
+   ```bash
+   createdb todo_app
+   createuser todo_user --pwprompt
+   ```
+3. Edit `backend/.env`:
+   ```env
+   DB_BACKEND=postgresql
+   DATABASE_URL="postgresql+psycopg://todo_user:YOUR_PASSWORD@localhost:5432/todo_app"
+   ```
+4. Initialize database:
+   ```bash
+   python3 init_db.py
+   ```
+
+#### Option C: Supabase (Cloud Database - Recommended for Deployment)
+
+1. Get Supabase connection string from your Supabase dashboard
+2. Edit `backend/.env`:
+   ```env
+   DB_BACKEND=postgresql
+   DATABASE_URL="postgresql+psycopg://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres?sslmode=require"
+   SUPABASE_URL="https://[project-ref].supabase.co"
+   SUPABASE_KEY="[your-anon-key]"
+   ```
+3. Initialize database (creates `todos` table, protects existing tables):
+   ```bash
+   python3 init_db.py
+   ```
+
+**Note:** The `init_db.py` script automatically detects Supabase and uses safe table creation that won't modify existing tables.
+
+### 4. Initialize Database
 
 ```bash
 # Run database initialization script
-python init_db.py
+python3 init_db.py
 
-# This creates the todos.db file in backend/src/todos.db
-# (where the server expects it)
+# For SQLite: Creates todos.db in backend/src/
+# For PostgreSQL/Supabase: Creates todos table in configured database
 ```
 
-**Important:** The database is created in `backend/src/todos.db` because the server runs from the `src/` directory. The `init_db.py` script handles this automatically.
+**Important:** 
+- For SQLite: Database is created in `backend/src/todos.db` because the server runs from the `src/` directory
+- For Supabase: The script detects existing tables and only creates the `todos` table without modifying others
 
-### 4. Start Development Server
+### 5. Start Development Server
 
 ```bash
 # Option 1: Use the convenience script (RECOMMENDED)
@@ -110,7 +163,7 @@ python -m uvicorn app.main:app --reload --port 8173 --app-dir src
 - Automatically restarts server on code changes
 - Great for development
 
-### 5. Verify Backend is Running
+### 6. Verify Backend is Running
 
 ```bash
 # Quick check script (checks port and health endpoint)
@@ -192,9 +245,11 @@ When the server is running, visit:
 **Symptoms:** API returns 500 error, logs show "no such table: todos"
 
 **Solutions:**
-1. Run database initialization: `python init_db.py`
-2. Verify database exists: `ls src/todos.db`
-3. Check database has tables: `sqlite3 src/todos.db ".tables"`
+1. Run database initialization: `python3 init_db.py`
+2. For SQLite: Verify database exists: `ls src/todos.db`
+3. For SQLite: Check database has tables: `sqlite3 src/todos.db ".tables"`
+4. For PostgreSQL/Supabase: Verify connection string in `backend/.env` is correct
+5. For Supabase: Check that `todos` table exists in Supabase dashboard
 
 ### "ModuleNotFoundError: No module named 'fastapi'"
 

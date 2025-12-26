@@ -77,15 +77,76 @@ def migrate_from_sqlite(sqlite_url: Optional[str] = None) -> None:
         target_session.close()
 
 
+def check_existing_tables():
+    """
+    Check for existing tables in the database to avoid accidental modifications.
+    
+    Returns:
+        set: Set of existing table names
+    """
+    from sqlalchemy import inspect
+    from app.database import engine
+    
+    inspector = inspect(engine)
+    existing_tables = set(inspector.get_table_names())
+    return existing_tables
+
+
+def create_todos_table_safely():
+    """
+    Create the todos table in Supabase with safeguards to avoid modifying existing tables.
+    
+    This function:
+    1. Checks for existing tables (patients, migration_checkpoints, alembic_version)
+    2. Only creates the todos table if it doesn't exist
+    3. Does not modify any existing tables
+    """
+    from sqlalchemy import inspect, text
+    from app.database import engine, Base
+    from app.models import TodoItem
+    
+    # Get list of existing tables
+    inspector = inspect(engine)
+    existing_tables = set(inspector.get_table_names())
+    
+    # Tables that should NOT be modified
+    protected_tables = {"patients", "migration_checkpoints", "alembic_version"}
+    
+    # Check if any protected tables exist
+    existing_protected = existing_tables & protected_tables
+    if existing_protected:
+        print(f"Found existing tables in database: {sorted(existing_protected)}")
+        print("These tables will NOT be modified.")
+    
+    # Check if todos table already exists
+    if "todos" in existing_tables:
+        print("Table 'todos' already exists. Skipping table creation.")
+        return
+    
+    # Create only the todos table
+    print("Creating 'todos' table...")
+    TodoItem.__table__.create(bind=engine, checkfirst=True)
+    print("Table 'todos' created successfully.")
+
+
 if __name__ == "__main__":
     migrate_flag = "--migrate-from-sqlite" in sys.argv
 
     print("Initializing database using configured DATABASE_URL...")
     print(f"  DB_BACKEND = {getattr(settings, 'DB_BACKEND', 'unknown')}")
     print(f"  DATABASE_URL = {settings.DATABASE_URL}")
-
-    # Create tables in the configured backend (SQLite or PostgreSQL)
-    init_db()
+    
+    # Check if using Supabase
+    is_supabase = settings.DATABASE_URL and "supabase" in settings.DATABASE_URL.lower()
+    
+    if is_supabase:
+        # For Supabase, use safe table creation to avoid modifying existing tables
+        print("Detected Supabase database. Using safe table creation...")
+        create_todos_table_safely()
+    else:
+        # For other databases, use standard initialization
+        # Create tables in the configured backend (SQLite or PostgreSQL)
+        init_db()
 
     if migrate_flag:
         if getattr(settings, "DB_BACKEND", "sqlite") != "postgresql":
