@@ -316,3 +316,54 @@ This document summarizes the changes made to the "Demo 1" Todo List Application 
     - `frontend/.vite/` (Vite cache directory)
     - `frontend/src/**/*.js` (compiled JavaScript output - TypeScript source files should be used instead)
 - **Result**: Prevents accidental commits of build artifacts and keeps repository clean
+
+## 11. Gitignore Refactoring & Vite Configuration Optimization (January 27, 2025)
+
+**Objective**: Improve project organization by separating ignore rules and optimize Vite configuration for better path resolution.
+
+**Implementation**:
+
+### 11.1 Gitignore Structure Refactoring
+
+- **Root `.gitignore`**: Simplified to contain only project-wide ignores (IDEs, environment variables, OS files)
+- **Backend-specific `.gitignore`**: Created `backend/.gitignore` with Python-specific patterns:
+  - Python cache files (`__pycache__/`, `*.pyc`)
+  - Virtual environments (`.venv/`, `venv/`, `env/`)
+  - Testing artifacts (`.pytest_cache/`, `.coverage`, `htmlcov/`)
+  - Build artifacts (`dist/`, `build/`, `*.egg-info/`)
+- **Frontend-specific `.gitignore`**: Created `frontend/.gitignore` with Node.js-specific patterns:
+  - Dependencies (`node_modules/`)
+  - Build outputs (`dist/`, `build/`)
+  - Vite cache (`.vite/`)
+  - Vercel deployment files (`.vercel/`)
+  - Test coverage (`coverage/`)
+
+**Benefits**:
+- Clearer separation of concerns between backend and frontend
+- Easier maintenance of ignore rules per project section
+- Reduced risk of accidentally committing build artifacts
+
+### 11.2 Vite Configuration Optimization
+
+- **Removed `vite-tsconfig-paths` plugin**: Simplified configuration by using Vite's built-in alias resolution
+- **Explicit alias configuration**: 
+  - Added explicit `@` alias pointing to `./src` directory
+  - Added file extension resolution order: `.mjs`, `.js`, `.mts`, `.ts`, `.jsx`, `.tsx`, `.json`
+- **Improved path resolution**: More explicit configuration ensures consistent behavior across different build environments
+
+### 11.3 Vercel Testing Documentation
+
+- **Created `docs/VERCEL_TESTING.md`**: Comprehensive guide for testing Vite builds on Vercel
+- **Includes**:
+  - Local verification steps (clean build, type checking, preview)
+  - Vercel CLI testing methods
+  - Vercel dashboard deployment testing
+  - Troubleshooting common build issues
+  - Environment variable configuration
+  - Build optimization tips
+
+**Key Features**:
+- ✅ Modular gitignore structure for better maintainability
+- ✅ Optimized Vite configuration with explicit path resolution
+- ✅ Comprehensive Vercel deployment testing guide
+- ✅ Improved build consistency across environments
