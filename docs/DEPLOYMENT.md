@@ -16,7 +16,11 @@ Configure the following environment variables in your hosting provider:
 - `DATABASE_URL`: Your Supabase connection string (or PostgreSQL connection string)
   - Format: `postgresql+psycopg://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres?sslmode=require`
 - `DB_BACKEND`: `postgresql`
-- `CORS_ORIGINS`: Comma-separated list of allowed frontend origins (e.g., `https://todo-frontend.vercel.app,https://yourdomain.com`)
+- `CORS_ORIGINS`: **CRITICAL** - Comma-separated list of allowed frontend origins
+  - **Example**: `https://todolist-scaffold.vercel.app,http://localhost:5173`
+  - **Must include**: Your Vercel frontend URL (e.g., `https://todolist-scaffold.vercel.app`)
+  - **Can include**: Local development URLs (e.g., `http://localhost:5173`)
+  - **Format**: Comma-separated, no spaces: `https://domain1.com,https://domain2.com`
 - `PORT`: The port the backend should listen on (Render provides this automatically via `$PORT`)
 
 **Optional:**
@@ -31,7 +35,32 @@ Configure the following environment variables in your hosting provider:
    - **Build Command**: `cd backend && pip install -r requirements.txt`
    - **Start Command**: `cd backend/src && python3 -m uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 4. **Set environment variables** (see above)
+   - **IMPORTANT**: Set `CORS_ORIGINS` to include your Vercel frontend URL
+   - Example: `CORS_ORIGINS=https://todolist-scaffold.vercel.app,http://localhost:5173`
 5. **Deploy**
+
+### Troubleshooting CORS Errors
+
+If you see "Cannot connect to backend server" or CORS errors in the browser console:
+
+1. **Verify CORS_ORIGINS is set correctly on Render:**
+   - Go to your Render service → Environment tab
+   - Check that `CORS_ORIGINS` includes your Vercel frontend URL
+   - Format: `https://your-app.vercel.app` (no trailing slash)
+   - Can include multiple origins: `https://app1.vercel.app,https://app2.vercel.app`
+
+2. **Verify the backend is accessible:**
+   ```bash
+   curl https://todolist-scaffold.onrender.com/health
+   ```
+
+3. **Check browser console for exact CORS error:**
+   - Look for "Access to XMLHttpRequest blocked by CORS policy"
+   - The error will show the exact origin being blocked
+
+4. **After updating CORS_ORIGINS:**
+   - Restart the Render service (or wait for auto-deploy)
+   - Clear browser cache and reload the frontend
 
 **Note:** The application will automatically:
 - Connect to Supabase on startup

@@ -22,10 +22,21 @@ api.interceptors.response.use(
     if (error.code === 'ECONNABORTED') {
       throw new Error('Request timeout - please check if the backend server is running')
     }
+    
+    // Check for CORS errors
+    if (error.message?.includes('CORS') || error.message?.includes('Access-Control')) {
+      const frontendUrl = window.location.origin
+      throw new Error(
+        `CORS error: Backend at ${error.config?.url || DEFAULT_API_URL} is not allowing requests from ${frontendUrl}. ` +
+        `Please add ${frontendUrl} to CORS_ORIGINS environment variable on Render.com.`
+      )
+    }
+    
     if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
       const apiUrl = import.meta.env.VITE_API_URL || DEFAULT_API_URL
       throw new Error(`Cannot connect to backend server at ${apiUrl}`)
     }
+    
     throw error
   }
 )
