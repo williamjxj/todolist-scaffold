@@ -1,9 +1,10 @@
 # TODO List Backend
 
-FastAPI backend for the TODO list application with support for SQLite, local PostgreSQL, and cloud Supabase databases. Features comprehensive error handling, automatic API documentation, and cloud deployment readiness.
+Async FastAPI backend for the TODO list application with support for SQLite, local PostgreSQL, and cloud Supabase databases. Built with async SQLAlchemy and asyncpg for high-performance async operations. Features comprehensive error handling, automatic API documentation, and cloud deployment readiness.
 
 ## ✨ Recent Improvements
 
+- ✅ **Async SQLAlchemy with asyncpg** - Full async/await support for better performance and scalability
 - ✅ **Supabase Cloud Database Support** - Migrated to cloud-hosted Supabase for multi-environment access
 - ✅ **Safe Table Creation** - Protects existing database tables during schema initialization
 - ✅ **Migration Script** - Automated data migration from local PostgreSQL to Supabase
@@ -71,9 +72,10 @@ pip install -r requirements-dev.txt
 ```
 
 **Dependencies:**
-- `fastapi` - Web framework
+- `fastapi` - Async web framework
 - `uvicorn` - ASGI server
-- `sqlalchemy` - ORM
+- `sqlalchemy[asyncio]` - Async ORM
+- `asyncpg` - Async PostgreSQL driver (fastest Python PostgreSQL driver)
 - `pydantic` - Data validation
 - See `requirements.txt` for full list
 
@@ -102,7 +104,7 @@ This creates `backend/src/todos.db` (SQLite file).
 3. Edit `backend/.env`:
    ```env
    DB_BACKEND=postgresql
-   DATABASE_URL="postgresql+psycopg://todo_user:YOUR_PASSWORD@localhost:5432/todo_app"
+   DATABASE_URL="postgresql+asyncpg://todo_user:YOUR_PASSWORD@localhost:5432/todo_app"
    ```
 4. Initialize database:
    ```bash
@@ -115,7 +117,7 @@ This creates `backend/src/todos.db` (SQLite file).
 2. Edit `backend/.env`:
    ```env
    DB_BACKEND=postgresql
-   DATABASE_URL="postgresql+psycopg://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres?sslmode=require"
+   DATABASE_URL="postgresql+asyncpg://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres?sslmode=require"
    SUPABASE_URL="https://[project-ref].supabase.co"
    SUPABASE_KEY="[your-anon-key]"
    ```
@@ -296,6 +298,7 @@ Checks if port 8173 is in use and tests the health endpoint.
 
 ## Documentation
 
+- **[Async Migration Guide](ASYNC_MIGRATION.md)** - Complete guide to async SQLAlchemy with asyncpg
 - **[FastAPI Setup Guide](../docs/fastapi-setup.md)** - Comprehensive FastAPI implementation details
 - **[FastAPI Step-by-Step](../docs/fastapi-step-by-step.md)** - Detailed step-by-step tutorial
 - **[API Reference](../docs/api-reference.md)** - Complete API endpoint documentation

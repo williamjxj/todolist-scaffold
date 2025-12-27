@@ -60,6 +60,7 @@
 ### Starting Both Services
 
 **Terminal 1 - Backend:**
+
 ```bash
 cd backend
 source venv/bin/activate
@@ -67,12 +68,14 @@ source venv/bin/activate
 ```
 
 **Terminal 2 - Frontend:**
+
 ```bash
 cd frontend
 npm run dev
 ```
 
 **Verify Both Running:**
+
 ```bash
 # Backend
 curl http://localhost:8000/health
@@ -88,7 +91,7 @@ curl http://localhost:5173
 
 ### Development Tips
 
-1. **Keep API docs open**: http://localhost:8000/docs for testing endpoints
+1. **Keep API docs open**: <http://localhost:8000/docs> for testing endpoints
 2. **Use browser DevTools**: Network tab to inspect API calls
 3. **Check console logs**: Both browser console and terminal for errors
 4. **Test API independently**: Use `curl` or Postman before frontend integration
@@ -100,6 +103,7 @@ curl http://localhost:5173
 ### Frontend API Client Setup
 
 **`frontend/src/services/api.ts`:**
+
 ```typescript
 import axios from 'axios'
 
@@ -127,6 +131,7 @@ api.interceptors.response.use(
 ```
 
 **Key Points:**
+
 - Relative URLs (`/api`) work with Vite proxy
 - Environment variables for production
 - Error interceptors for consistent error handling
@@ -134,6 +139,7 @@ api.interceptors.response.use(
 ### Vite Proxy Configuration
 
 **`frontend/vite.config.ts`:**
+
 ```typescript
 export default defineConfig({
   server: {
@@ -148,6 +154,7 @@ export default defineConfig({
 ```
 
 **Why Proxy?**
+
 - Avoids CORS issues in development
 - Single origin (frontend) makes requests
 - Automatic path rewriting
@@ -155,6 +162,7 @@ export default defineConfig({
 ### React Hook Pattern
 
 **`frontend/src/hooks/useTodos.ts`:**
+
 ```typescript
 export const useTodos = () => {
   const [todos, setTodos] = useState<TodoItem[]>([])
@@ -184,6 +192,7 @@ export const useTodos = () => {
 ```
 
 **Pattern Benefits:**
+
 - Encapsulates API logic
 - Reusable across components
 - Consistent error handling
@@ -196,6 +205,7 @@ export const useTodos = () => {
 ### Backend CORS Setup
 
 **`backend/src/app/main.py`:**
+
 ```python
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -209,10 +219,10 @@ app.add_middleware(
 ```
 
 **Configuration:**
+
 ```python
 CORS_ORIGINS: list[str] = [
     "http://localhost:5173",  # Vite default
-    "http://localhost:3000",  # Alternative port
     "http://127.0.0.1:5173",   # IP variant
 ]
 ```
@@ -222,12 +232,14 @@ CORS_ORIGINS: list[str] = [
 **Error: "Access to XMLHttpRequest blocked by CORS policy"**
 
 **Solutions:**
+
 1. Check `CORS_ORIGINS` includes frontend URL
 2. Verify exact URL (including port, http vs https)
 3. Use Vite proxy in development (avoids CORS entirely)
 4. Check browser console for exact origin being blocked
 
 **Development vs Production:**
+
 - **Development**: Use Vite proxy (no CORS issues)
 - **Production**: Configure exact origins (security)
 
@@ -238,6 +250,7 @@ CORS_ORIGINS: list[str] = [
 ### Backend Error Handling
 
 **FastAPI HTTP Exceptions:**
+
 ```python
 from fastapi import HTTPException, status
 
@@ -253,6 +266,7 @@ async def get_todo(todo_id: int, db: Session = Depends(get_db)):
 ```
 
 **Pydantic Validation Errors:**
+
 - Automatically handled by FastAPI
 - Returns 422 status with validation details
 - Frontend receives structured error response
@@ -260,6 +274,7 @@ async def get_todo(todo_id: int, db: Session = Depends(get_db)):
 ### Frontend Error Handling
 
 **Component Error Display:**
+
 ```typescript
 const { todos, error, loading } = useTodos()
 
@@ -272,6 +287,7 @@ const { todos, error, loading } = useTodos()
 ```
 
 **Connection Error Detection:**
+
 ```typescript
 const isConnectionError = error?.toLowerCase().includes('cannot connect') || 
                          error?.toLowerCase().includes('network error')
@@ -284,6 +300,7 @@ const isConnectionError = error?.toLowerCase().includes('cannot connect') ||
 ```
 
 **Error Recovery:**
+
 - Retry failed requests
 - Show user-friendly messages
 - Log errors for debugging
@@ -296,11 +313,13 @@ const isConnectionError = error?.toLowerCase().includes('cannot connect') ||
 ### Simple State (This Project)
 
 **React Hooks:**
+
 - `useState` - Component state
 - `useEffect` - Side effects (API calls)
 - Custom hooks - Reusable state logic
 
 **Pattern:**
+
 ```typescript
 // Custom hook encapsulates state
 const useTodos = () => {
@@ -319,12 +338,14 @@ const App = () => {
 ### When to Use State Management Libraries
 
 **Use React Context/Redux/Zustand when:**
+
 - State shared across many components
 - Complex state updates
 - Need time-travel debugging
 - Large application
 
 **For this project:**
+
 - Simple state (todos list)
 - Limited component tree
 - React hooks sufficient
@@ -336,12 +357,14 @@ const App = () => {
 ### Backend Type Safety
 
 **Pydantic Schemas:**
+
 ```python
 class TodoItemCreate(BaseModel):
     description: str = Field(..., min_length=1, max_length=500)
 ```
 
 **Benefits:**
+
 - Automatic validation
 - Type checking
 - API documentation
@@ -350,6 +373,7 @@ class TodoItemCreate(BaseModel):
 ### Frontend Type Safety
 
 **TypeScript Types:**
+
 ```typescript
 interface TodoItem {
   id: number
@@ -361,6 +385,7 @@ interface TodoItem {
 ```
 
 **API Client Typing:**
+
 ```typescript
 const api = {
   getAll: async (): Promise<TodoItem[]> => {
@@ -371,6 +396,7 @@ const api = {
 ```
 
 **Benefits:**
+
 - Compile-time error checking
 - IDE autocomplete
 - Refactoring safety
@@ -379,6 +405,7 @@ const api = {
 ### Type Synchronization
 
 **Keep Types in Sync:**
+
 1. Backend Pydantic schemas define API contract
 2. Frontend TypeScript types match schemas
 3. Update both when API changes
@@ -391,6 +418,7 @@ const api = {
 ### Backend Testing
 
 **Test Structure:**
+
 ```python
 # tests/conftest.py - Fixtures
 @pytest.fixture
@@ -405,6 +433,7 @@ def test_create_todo(client):
 ```
 
 **Testing Levels:**
+
 1. **Unit Tests** - Service layer logic
 2. **Integration Tests** - API endpoints
 3. **E2E Tests** - Full request/response cycle
@@ -412,6 +441,7 @@ def test_create_todo(client):
 ### Frontend Testing
 
 **Component Testing:**
+
 ```typescript
 import { render, screen } from '@testing-library/react'
 
@@ -422,6 +452,7 @@ test('renders todo list', () => {
 ```
 
 **API Mocking:**
+
 ```typescript
 vi.mock('../services/api', () => ({
   todoApi: {
@@ -437,6 +468,7 @@ vi.mock('../services/api', () => ({
 ### Backend Optimization
 
 **Database Queries:**
+
 ```python
 # Bad: N+1 queries
 for todo in todos:
@@ -447,6 +479,7 @@ todos = db.query(TodoItem).options(joinedload(TodoItem.user)).all()
 ```
 
 **Response Caching:**
+
 ```python
 from fastapi_cache import FastAPICache
 
@@ -459,6 +492,7 @@ async def list_todos():
 ### Frontend Optimization
 
 **React.memo:**
+
 ```typescript
 export const TodoItem = React.memo(({ todo, onToggle }) => {
   // Only re-renders if props change
@@ -466,11 +500,13 @@ export const TodoItem = React.memo(({ todo, onToggle }) => {
 ```
 
 **Code Splitting:**
+
 ```typescript
 const TodoList = lazy(() => import('./components/TodoList'))
 ```
 
 **API Request Optimization:**
+
 - Debounce search inputs
 - Paginate large lists
 - Cache API responses
@@ -483,10 +519,12 @@ const TodoList = lazy(() => import('./components/TodoList'))
 ### Issue 1: Network Error / Cannot Connect
 
 **Symptoms:**
+
 - Frontend shows "Network Error"
 - API calls fail
 
 **Solutions:**
+
 1. Verify backend running: `curl http://localhost:8000/health`
 2. Check port conflicts: `lsof -i :8000`
 3. Verify Vite proxy config
@@ -495,10 +533,12 @@ const TodoList = lazy(() => import('./components/TodoList'))
 ### Issue 2: CORS Errors
 
 **Symptoms:**
+
 - Browser console: "CORS policy blocked"
 - Preflight requests fail
 
 **Solutions:**
+
 1. Use Vite proxy in development
 2. Add frontend URL to `CORS_ORIGINS`
 3. Check exact URL (port, protocol)
@@ -507,10 +547,12 @@ const TodoList = lazy(() => import('./components/TodoList'))
 ### Issue 3: Database Not Found
 
 **Symptoms:**
+
 - "no such table: todos"
 - 500 errors on API calls
 
 **Solutions:**
+
 1. Run `python init_db.py`
 2. Verify database location: `backend/src/todos.db`
 3. Check database has tables: `sqlite3 src/todos.db ".tables"`
@@ -519,10 +561,12 @@ const TodoList = lazy(() => import('./components/TodoList'))
 ### Issue 4: Type Mismatches
 
 **Symptoms:**
+
 - TypeScript errors
 - Runtime type errors
 
 **Solutions:**
+
 1. Keep Pydantic schemas and TypeScript types in sync
 2. Use type assertions carefully
 3. Validate API responses
@@ -531,10 +575,12 @@ const TodoList = lazy(() => import('./components/TodoList'))
 ### Issue 5: Port Already in Use
 
 **Symptoms:**
+
 - "Address already in use"
 - Server won't start
 
 **Solutions:**
+
 ```bash
 # Find process
 lsof -i :8000
@@ -625,18 +671,21 @@ uvicorn app.main:app --reload --port 8001
 ### Backend Deployment
 
 **Production Server:**
+
 ```bash
 # Use production ASGI server
 gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker
 ```
 
 **Environment Variables:**
+
 ```bash
 DATABASE_URL=postgresql://user:pass@host/db
 CORS_ORIGINS=https://yourdomain.com
 ```
 
 **Database Migration:**
+
 - Use Alembic for migrations
 - Don't use `init_db()` in production
 - Backup database before migrations
@@ -644,6 +693,7 @@ CORS_ORIGINS=https://yourdomain.com
 ### Frontend Deployment
 
 **Build for Production:**
+
 ```bash
 cd frontend
 npm run build
@@ -651,12 +701,14 @@ npm run build
 ```
 
 **Serve Static Files:**
+
 - Nginx
 - Vercel
 - Netlify
 - AWS S3 + CloudFront
 
 **Environment Variables:**
+
 ```bash
 VITE_API_URL=https://api.yourdomain.com
 ```
@@ -664,6 +716,7 @@ VITE_API_URL=https://api.yourdomain.com
 ### Full-Stack Deployment
 
 **Options:**
+
 1. **Separate Deployments**
    - Backend: Railway, Render, Fly.io
    - Frontend: Vercel, Netlify
@@ -682,16 +735,19 @@ VITE_API_URL=https://api.yourdomain.com
 ## Additional Resources
 
 ### FastAPI Resources
+
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [FastAPI Tutorial](https://fastapi.tiangolo.com/tutorial/)
 - [SQLAlchemy Documentation](https://docs.sqlalchemy.org/)
 
 ### React Resources
+
 - [React Documentation](https://react.dev/)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 - [Vite Documentation](https://vitejs.dev/)
 
 ### Integration Resources
+
 - [Axios Documentation](https://axios-http.com/)
 - [CORS Explained](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
 - [REST API Design](https://restfulapi.net/)
@@ -701,6 +757,7 @@ VITE_API_URL=https://api.yourdomain.com
 ## Quick Reference
 
 ### Start Development
+
 ```bash
 # Terminal 1
 cd backend && source venv/bin/activate && ./run.sh
@@ -710,6 +767,7 @@ cd frontend && npm run dev
 ```
 
 ### Test API
+
 ```bash
 curl http://localhost:8000/api/todos/
 curl -X POST http://localhost:8000/api/todos/ \
@@ -718,6 +776,7 @@ curl -X POST http://localhost:8000/api/todos/ \
 ```
 
 ### Check Status
+
 ```bash
 # Backend
 cd backend && ./check-backend.sh

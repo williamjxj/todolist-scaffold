@@ -1,6 +1,7 @@
 import logging
 import time
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from typing import Optional, List
 from datetime import datetime
 from app.models import TodoItem
@@ -11,20 +12,24 @@ logger = logging.getLogger(__name__)
 class TodoService:
     """Service layer for TODO item operations"""
 
-    def __init__(self, db: Session):
+    def __init__(self, db: AsyncSession):
         self.db = db
 
-    def get_all(self, completed: Optional[bool] = None, priority: Optional[str] = None, category: Optional[str] = None) -> List[TodoItem]:
+    async def get_all(self, completed: Optional[bool] = None, priority: Optional[str] = None, category: Optional[str] = None) -> List[TodoItem]:
         """Get all TODO items, with optional filters"""
         start_time = time.time()
-        query = self.db.query(TodoItem)
+        query = select(TodoItem)
         if completed is not None:
             query = query.filter(TodoItem.completed == completed)
         if priority is not None:
             query = query.filter(TodoItem.priority == priority)
         if category is not None:
             query = query.filter(TodoItem.category == category)
-        result = query.order_by(TodoItem.created_at.desc()).all()
+        query = query.order_by(TodoItem.created_at.desc())
+        
+        result = await self.db.execute(query)
+        todos = result.scalars().all()
+        
         query_time = time.time() - start_time
         
         # Log performance for Supabase queries (target: < 100ms p95)
@@ -33,13 +38,16 @@ class TodoService:
         else:
             logger.debug(f"Query completed in {query_time:.3f}s")
         
-        return result
+        return list(todos)
 
-    def get_by_id(self, id: int) -> Optional[TodoItem]:
+    async def get_by_id(self, id: int) -> Optional[TodoItem]:
         """Get a TODO item by ID"""
-        return self.db.query(TodoItem).filter(TodoItem.id == id).first()
+        result = await self.db.execute(
+            select(TodoItem).filter(TodoItem.id == id)
+        )
+        return result.scalar_one_or_none()
 
-    def create(self, description: str, priority: str = "Medium", due_date: Optional[datetime] = None, category: Optional[str] = None) -> TodoItem:
+    async def create(self, description: str, priority: str = "Medium", due_date: Optional[datetime] = None, category: Optional[str] = None) -> TodoItem:
         """
         Create a new TODO item.
         """
@@ -62,11 +70,11 @@ class TodoService:
             category=category
         )
         self.db.add(todo)
-        self.db.commit()
-        self.db.refresh(todo)
+        await self.db.commit()
+        await self.db.refresh(todo)
         return todo
 
-    def update(
+    async def update(
         self,
         id: int,
         description: Optional[str] = None,
@@ -76,7 +84,7 @@ class TodoService:
         category: Optional[str] = None
     ) -> Optional[TodoItem]:
         """Update a TODO item"""
-        todo = self.get_by_id(id)
+        todo = await self.get_by_id(id)
         if not todo:
             return None
 
@@ -99,27 +107,27 @@ class TodoService:
         if category is not None:
             todo.category = category
 
-        self.db.commit()
-        self.db.refresh(todo)
+        await self.db.commit()
+        await self.db.refresh(todo)
         return todo
 
-    def delete(self, id: int) -> bool:
+    async def delete(self, id: int) -> bool:
         """Delete a TODO item"""
-        todo = self.get_by_id(id)
+        todo = await self.get_by_id(id)
         if not todo:
             return False
 
-        self.db.delete(todo)
-        self.db.commit()
+        await self.db.delete(todo)
+        await self.db.commit()
         return True
 
-    def toggle_complete(self, id: int) -> Optional[TodoItem]:
+    async def toggle_complete(self, id: int) -> Optional[TodoItem]:
         """Toggle completion status of a TODO item"""
-        todo = self.get_by_id(id)
+        todo = await self.get_by_id(id)
         if not todo:
             return None
 
         todo.completed = not todo.completed
-        self.db.commit()
-        self.db.refresh(todo)
+        await self.db.commit()
+        await self.db.refresh(todo)
         return todo

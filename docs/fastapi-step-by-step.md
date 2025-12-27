@@ -49,6 +49,7 @@ mkdir -p tests
 ```
 
 **Why this structure?**
+
 - `src/` - Source code directory (Python best practice)
 - `app/` - Application package
 - `api/routes/` - API endpoint definitions
@@ -66,6 +67,7 @@ python -m venv venv
 ```
 
 **What this does:**
+
 - Creates an isolated Python environment in `venv/`
 - Prevents dependency conflicts with system Python
 - Allows project-specific package versions
@@ -73,16 +75,19 @@ python -m venv venv
 ### 2.2 Activate Virtual Environment
 
 **macOS/Linux:**
+
 ```bash
 source venv/bin/activate
 ```
 
 **Windows:**
+
 ```bash
 venv\Scripts\activate
 ```
 
 **Verify activation:**
+
 - Terminal prompt shows `(venv)`
 - `which python` points to `venv/bin/python`
 
@@ -107,6 +112,7 @@ pydantic-settings==2.1.0
 ```
 
 **Explanation:**
+
 - `fastapi` - Web framework
 - `uvicorn[standard]` - ASGI server (runs FastAPI)
 - `sqlalchemy` - ORM for database operations
@@ -125,6 +131,7 @@ mypy==1.8.0
 ```
 
 **Explanation:**
+
 - `pytest` - Testing framework
 - `pytest-asyncio` - Async test support
 - `httpx` - HTTP client for testing
@@ -140,6 +147,7 @@ pip install -r requirements-dev.txt
 ```
 
 **Verify installation:**
+
 ```bash
 pip list | grep fastapi
 ```
@@ -151,26 +159,31 @@ pip list | grep fastapi
 ### 4.1 Create Package Files
 
 **`src/app/__init__.py`** (empty file):
+
 ```python
 # Package marker
 ```
 
 **`src/app/api/__init__.py`**:
+
 ```python
 # API package
 ```
 
 **`src/app/api/routes/__init__.py`**:
+
 ```python
 # Routes package
 ```
 
 **`src/app/services/__init__.py`**:
+
 ```python
 # Services package
 ```
 
 **Why `__init__.py`?**
+
 - Makes directories Python packages
 - Allows imports like `from app.api.routes import todos`
 
@@ -193,7 +206,6 @@ class Settings(BaseSettings):
     # CORS - Allow common development origins
     CORS_ORIGINS: list[str] = [
         "http://localhost:5173",
-        "http://localhost:3000",
         "http://127.0.0.1:5173",
     ]
 
@@ -209,6 +221,7 @@ settings = Settings()
 ```
 
 **Key Concepts:**
+
 - `BaseSettings` - Pydantic class for settings management
 - `DATABASE_URL` - SQLite connection string
   - `sqlite:///./todos.db` - Relative path (creates in current directory)
@@ -216,6 +229,7 @@ settings = Settings()
 - Environment variables can override defaults via `.env` file
 
 **Why this approach?**
+
 - Type-safe configuration
 - Environment variable support
 - Centralized settings management
@@ -283,6 +297,7 @@ def init_db():
    - Must import models before calling (so SQLAlchemy knows what to create)
 
 **Why dependency injection?**
+
 - Automatic session management
 - Ensures sessions are closed
 - Testable (can mock `get_db`)
@@ -338,6 +353,7 @@ class TodoItem(Base):
    - `onupdate=func.now()` - Auto-updated on row update
 
 **Why SQLAlchemy models?**
+
 - Database-agnostic (can switch from SQLite to PostgreSQL)
 - Type-safe Python objects
 - Automatic relationship handling
@@ -399,6 +415,7 @@ class TodoItemResponse(TodoItemBase):
    - `from_attributes=True` - Allows conversion from SQLAlchemy models
 
 **Why Pydantic schemas?**
+
 - Automatic validation
 - Type conversion
 - API documentation generation
@@ -507,6 +524,7 @@ class TodoService:
    - Convenience method for common operation
 
 **Why a service layer?**
+
 - Separates business logic from API routes
 - Reusable across different interfaces
 - Easier to test
@@ -667,6 +685,7 @@ async def toggle_complete(
    - Convenience endpoint
 
 **FastAPI Decorators:**
+
 - `@router.get/post/put/delete/patch` - HTTP method
 - `response_model` - Response schema (for validation & docs)
 - `Depends(get_db)` - Dependency injection
@@ -770,11 +789,13 @@ if __name__ == "__main__":
 ```
 
 **Key Points:**
+
 - Must import models before `init_db()` (so SQLAlchemy knows tables)
 - Changes to `src/` directory (where server runs from)
 - Creates `todos.db` in correct location
 
 **Run it:**
+
 ```bash
 cd backend
 source venv/bin/activate
@@ -857,6 +878,7 @@ def test_list_todos(client):
 ```
 
 **Run tests:**
+
 ```bash
 cd backend
 pytest
@@ -878,11 +900,13 @@ uvicorn app.main:app --reload --port 8000
 ```
 
 **Make it executable:**
+
 ```bash
 chmod +x backend/run.sh
 ```
 
 **Run it:**
+
 ```bash
 cd backend
 source venv/bin/activate
@@ -899,15 +923,17 @@ uvicorn app.main:app --reload --port 8000
 ### 14.3 Verify It Works
 
 1. **Health check:**
+
    ```bash
    curl http://localhost:8000/health
    # Should return: {"status":"healthy"}
    ```
 
 2. **API docs:**
-   - Open http://localhost:8000/docs in browser
+   - Open <http://localhost:8000/docs> in browser
 
 3. **Create a todo:**
+
    ```bash
    curl -X POST http://localhost:8000/api/todos/ \
      -H "Content-Type: application/json" \
@@ -930,12 +956,14 @@ You've now built a complete FastAPI backend with:
 ✅ **Documentation** - Auto-generated API docs  
 
 **Next Steps:**
+
 - Connect frontend (see `docs/fastapi-react-tips.md`)
 - Add authentication
 - Deploy to production
 - Add more features
 
 **Resources:**
+
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [SQLAlchemy Documentation](https://docs.sqlalchemy.org/)
 - [Pydantic Documentation](https://docs.pydantic.dev/)

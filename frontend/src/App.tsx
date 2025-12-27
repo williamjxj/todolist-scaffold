@@ -91,25 +91,48 @@ function App() {
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <header className="mb-14 flex flex-col items-center justify-center">
-          <div className="flex flex-col items-center gap-6">
-            <div className="relative">
+          <div className="flex flex-row items-center justify-center gap-6 md:gap-8">
+            <div className="relative shrink-0">
               <img
                 src="/logo.png"
                 alt="Todo List Logo"
-                className="h-16 w-16 rounded-2xl shadow-xl ring-2 ring-white"
+                className="h-14 w-14 md:h-18 md:w-18 rounded-2xl shadow-xl ring-2 ring-white"
               />
               <div className="absolute -inset-1 bg-linear-to-r from-purple-400 to-blue-500 rounded-2xl blur opacity-20 -z-10" />
             </div>
-            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter text-center">
+            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter text-left leading-tight">
               <ColourfulText text="Todo List Scaffold" />
             </h1>
           </div>
 
-          <div className="mt-8 flex items-center gap-4 w-full max-w-md">
+          <div className="mt-8 flex items-center gap-4 w-full max-w-xl">
             <div className="h-[1px] flex-1 bg-linear-to-r from-transparent via-gray-200 to-gray-200" />
-            <p className="text-xs md:text-sm font-black uppercase tracking-[0.5em] text-gray-400/80 whitespace-nowrap">
-              Manage your tasks efficiently
-            </p>
+            <div className="flex items-center gap-4">
+              <p className="text-xs md:text-sm font-black uppercase tracking-[0.5em] text-gray-400/80 whitespace-nowrap">
+                Manage your tasks efficiently
+              </p>
+              <div className="h-4 w-[1px] bg-gray-200" />
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] md:text-xs font-medium text-gray-400 uppercase tracking-widest whitespace-nowrap">
+                  Powered by
+                </span>
+                <a
+                  href="https://www.bestitconsulting.ca/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 group"
+                >
+                  <img
+                    src="/b11-logo.png"
+                    alt="Best IT Consulting"
+                    className="h-4 w-4 md:h-5 md:w-5 object-contain grayscale group-hover:grayscale-0 transition-all opacity-60 group-hover:opacity-100"
+                  />
+                  <span className="text-[10px] md:text-xs font-bold text-gray-400 group-hover:text-blue-600 transition-colors uppercase tracking-wider">
+                    best it consulting
+                  </span>
+                </a>
+              </div>
+            </div>
             <div className="h-[1px] flex-1 bg-linear-to-r from-gray-200 via-gray-200 to-transparent" />
           </div>
         </header>

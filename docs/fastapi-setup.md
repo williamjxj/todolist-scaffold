@@ -48,10 +48,12 @@ FastAPI is a modern, fast (high-performance) web framework for building APIs wit
 ### Prerequisites
 
 Before starting, ensure you have:
+
 - **Python 3.11 or higher** installed
 - **pip** (Python package manager) installed
 
 Verify installation:
+
 ```bash
 python --version  # Should show 3.11 or higher
 pip --version
@@ -60,6 +62,7 @@ pip --version
 ### Step 1: Create Virtual Environment
 
 **Why use a virtual environment?**
+
 - Isolates project dependencies from system Python
 - Prevents dependency conflicts between projects
 - Makes dependency management reproducible
@@ -80,16 +83,19 @@ This creates a `venv/` directory containing an isolated Python environment.
 ### Step 2: Activate Virtual Environment
 
 **On macOS/Linux:**
+
 ```bash
 source venv/bin/activate
 ```
 
 **On Windows:**
+
 ```bash
 venv\Scripts\activate
 ```
 
 **Verify activation:**
+
 - Your terminal prompt should show `(venv)` prefix
 - Running `which python` (macOS/Linux) or `where python` (Windows) should point to `venv/bin/python`
 
@@ -98,6 +104,7 @@ venv\Scripts\activate
 **Create requirements files:**
 
 **`backend/requirements.txt`** (production dependencies):
+
 ```txt
 fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
@@ -107,6 +114,7 @@ pydantic-settings>=2.0.0
 ```
 
 **`backend/requirements-dev.txt`** (development dependencies):
+
 ```txt
 pytest>=7.4.0
 pytest-asyncio>=0.21.0
@@ -117,6 +125,7 @@ mypy>=1.5.0
 ```
 
 **Install dependencies:**
+
 ```bash
 # Make sure virtual environment is activated
 # Install production dependencies
@@ -127,6 +136,7 @@ pip install -r requirements-dev.txt
 ```
 
 **Verify installation:**
+
 ```bash
 pip list  # Should show FastAPI, SQLAlchemy, etc.
 fastapi --version  # Should show version number
@@ -135,6 +145,7 @@ fastapi --version  # Should show version number
 ### Step 4: Verify Setup
 
 Test that FastAPI can be imported:
+
 ```bash
 python -c "import fastapi; print(fastapi.__version__)"
 ```
@@ -142,6 +153,7 @@ python -c "import fastapi; print(fastapi.__version__)"
 ### Deactivating Virtual Environment
 
 When done working:
+
 ```bash
 deactivate
 ```
@@ -155,9 +167,9 @@ deactivate
 
 ### Official Documentation References
 
-- **FastAPI Installation**: https://fastapi.tiangolo.com/#installation
-- **Python Virtual Environments**: https://docs.python.org/3/tutorial/venv.html
-- **pip User Guide**: https://pip.pypa.io/en/stable/
+- **FastAPI Installation**: <https://fastapi.tiangolo.com/#installation>
+- **Python Virtual Environments**: <https://docs.python.org/3/tutorial/venv.html>
+- **pip User Guide**: <https://pip.pypa.io/en/stable/>
 
 ## Project Structure
 
@@ -227,6 +239,7 @@ async def health_check():
 ```
 
 **Key Concepts**:
+
 - `FastAPI()`: Creates the application instance
 - `CORSMiddleware`: Allows frontend (different origin) to call backend
 - `include_router()`: Adds route handlers from separate modules
@@ -246,7 +259,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./todos.db"
     
     # CORS
-    CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:3000"]
+    CORS_ORIGINS: list[str] = ["http://localhost:5173"]
     
     # API
     API_V1_PREFIX: str = "/api"
@@ -259,6 +272,7 @@ settings = Settings()
 ```
 
 **Key Concepts**:
+
 - `BaseSettings`: Pydantic class for configuration management
 - Environment variables: Can override defaults via `.env` file
 - Type hints: Ensures correct types for all settings
@@ -304,6 +318,7 @@ def init_db():
 ```
 
 **Key Concepts**:
+
 - `create_engine()`: Creates database connection pool
 - `SessionLocal`: Factory for creating database sessions
 - `declarative_base()`: Base class for SQLAlchemy models
@@ -335,6 +350,7 @@ class TodoItem(Base):
 ```
 
 **Key Concepts**:
+
 - `Base`: Inherited from `declarative_base()` - makes this a database table
 - `Column()`: Defines table columns with types and constraints
 - `primary_key=True`: Marks column as primary key
@@ -385,6 +401,7 @@ class TodoItemResponse(BaseModel):
 ```
 
 **Key Concepts**:
+
 - `BaseModel`: Pydantic base class for data validation
 - `Field()`: Adds validation rules (min_length, max_length)
 - `...`: Required field (Ellipsis)
@@ -495,6 +512,7 @@ async def toggle_complete(
 ```
 
 **Key Concepts**:
+
 - `APIRouter()`: Groups related endpoints
 - `@router.get/post/put/delete/patch()`: HTTP method decorators
 - `response_model`: FastAPI validates response matches schema
@@ -601,6 +619,7 @@ class TodoService:
 ```
 
 **Key Concepts**:
+
 - **Service Layer**: Separates business logic from API routes
 - **Database Session**: Passed to service, not created inside
 - **Query Methods**: SQLAlchemy query API (`filter()`, `order_by()`, etc.)
@@ -808,6 +827,7 @@ FastAPI automatically generates OpenAPI docs from docstrings and type hints.
 ## Summary
 
 FastAPI provides:
+
 - ✅ Automatic API documentation
 - ✅ Type-safe request/response validation
 - ✅ Easy async support
@@ -817,6 +837,7 @@ FastAPI provides:
 This implementation follows FastAPI best practices and is designed to be easy to understand for entry-level developers while demonstrating production-ready patterns.
 
 For more information, see:
+
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [SQLAlchemy Documentation](https://docs.sqlalchemy.org/)
 - [Pydantic Documentation](https://docs.pydantic.dev/)

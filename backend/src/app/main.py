@@ -31,7 +31,7 @@ app.include_router(todos.router, prefix="/api/todos", tags=["todos"])
 async def startup_event():
     """Verify database connection on application startup"""
     logger.info("Starting application...")
-    if not verify_connection():
+    if not await verify_connection():
         logger.error("Failed to connect to database on startup. Please check your configuration.")
         # Don't raise exception - allow app to start but log the error
         # This allows the app to start even if DB is temporarily unavailable
@@ -45,7 +45,7 @@ async def root():
 @app.get("/health")
 async def health_check():
     """Health check endpoint with database connectivity check"""
-    db_status = verify_connection()
+    db_status = await verify_connection()
     return {
         "status": "healthy" if db_status else "degraded",
         "database": "connected" if db_status else "disconnected"
@@ -64,7 +64,7 @@ async def database_health_check():
     """
     import time
     start_time = time.time()
-    db_status = verify_connection()
+    db_status = await verify_connection()
     connection_time = time.time() - start_time
     
     db_url = settings.DATABASE_URL

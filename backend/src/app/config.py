@@ -56,10 +56,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: Union[str, List[str]] = Field(
         default=[
             "http://localhost:5173",
-            "http://localhost:3000",
             "http://127.0.0.1:5173",
-            "http://127.0.0.1:3000",
-            "http://localhost:5174",
         ],
         description="CORS allowed origins (comma-separated string or list)"
     )
@@ -69,10 +66,7 @@ class Settings(BaseSettings):
         # Default list if not provided
         default_origins = [
             "http://localhost:5173",
-            "http://localhost:3000",
             "http://127.0.0.1:5173",
-            "http://127.0.0.1:3000",
-            "http://localhost:5174",
         ]
         
         # Handle None or empty string
@@ -115,8 +109,6 @@ class Settings(BaseSettings):
     DATABASE_URL_MIGRATION: Optional[str] = None
 
     class Config:
-        # Always load environment variables from the backend/.env file,
-        # regardless of the current working directory when the process starts.
         _backend_root = Path(__file__).resolve().parents[2]
         env_file = _backend_root / ".env"
         case_sensitive = True

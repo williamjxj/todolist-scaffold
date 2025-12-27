@@ -2,9 +2,9 @@ import os
 import sys
 
 import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+import pytest_asyncio
+from httpx import AsyncClient, ASGITransport
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 
 
 # Ensure the backend src/ directory is on sys.path so that
@@ -18,34 +18,38 @@ if _src_dir not in sys.path:
 from app.main import app  # noqa: E402
 from app.database import Base, get_db  # noqa: E402
 
-# Test database (in-memory SQLite)
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Test database (async SQLite)
+SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite:///./test.db"
+engine = create_async_engine(SQLALCHEMY_DATABASE_URL, echo=False)
+TestingSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
-@pytest.fixture
-def db():
+@pytest_asyncio.fixture
+async def db():
     """Create test database tables"""
-    Base.metadata.create_all(bind=engine)
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-        Base.metadata.drop_all(bind=engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    
+    async with TestingSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            pass
+    
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
 
 
-@pytest.fixture
-def client(db):
+@pytest_asyncio.fixture
+async def client(db):
     """Create test client with test database"""
-    def override_get_db():
+    async def override_get_db():
         try:
             yield db
         finally:
             pass
 
     app.dependency_overrides[get_db] = override_get_db
-    with TestClient(app) as test_client:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as test_client:
         yield test_client
     app.dependency_overrides.clear()

@@ -1,7 +1,7 @@
 import logging
-from sqlalchemy import create_engine, text
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from app.config import settings
 
@@ -10,62 +10,74 @@ logger = logging.getLogger(__name__)
 
 def _create_engine_from_settings():
     """
-    Create SQLAlchemy engine based on current settings.
+    Create async SQLAlchemy engine based on current settings.
 
     - Uses DATABASE_URL for the connection string.
-    - Applies SQLite-specific connect_args only when using SQLite.
+    - Converts postgresql:// to postgresql+asyncpg:// for async support.
     - Handles Supabase PostgreSQL connections with SSL requirements.
     """
     url = settings.DATABASE_URL
-    connect_args = {}
-
-    # SQLite requires a special check_same_thread flag when used in FastAPI
-    if url.startswith("sqlite"):
-        connect_args = {"check_same_thread": False}
+    
+    # Convert to async driver URL
+    if url.startswith("postgresql://"):
+        url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    elif url.startswith("postgresql+psycopg://"):
+        # If someone mistakenly used psycopg, convert to asyncpg
+        url = url.replace("postgresql+psycopg://", "postgresql+asyncpg://", 1)
+    
     # Supabase and other PostgreSQL connections require SSL
-    elif url.startswith("postgresql") and "supabase" in url.lower():
+    if url.startswith("postgresql") and "supabase" in url.lower():
         # Ensure SSL is required for Supabase connections
         if "sslmode" not in url:
             separator = "&" if "?" in url else "?"
             url = f"{url}{separator}sslmode=require"
         logger.info("Configuring Supabase PostgreSQL connection with SSL")
+    
+    # For SQLite, use aiosqlite
+    if url.startswith("sqlite"):
+        if not url.startswith("sqlite+aiosqlite"):
+            url = url.replace("sqlite://", "sqlite+aiosqlite://", 1)
+    
+    return create_async_engine(url, echo=False, future=True)
 
-    return create_engine(url, connect_args=connect_args)
 
-
-# Create database engine
+# Create async database engine
 engine = _create_engine_from_settings()
 
-# Create session factory
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Create async session factory
+AsyncSessionLocal = async_sessionmaker(
+    engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+    autocommit=False,
+    autoflush=False
+)
 
 # Base class for models
 Base = declarative_base()
 
 
-def get_db():
+async def get_db():
     """
-    Dependency function to get database session.
+    Async dependency function to get database session.
     FastAPI will call this for each request that needs database access.
     
     Handles connection errors gracefully and provides clear error messages.
     """
-    db = SessionLocal()
-    try:
-        yield db
-    except SQLAlchemyError as e:
-        logger.error(f"Database error during request: {e}")
-        db.rollback()
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error during database operation: {e}")
-        db.rollback()
-        raise
-    finally:
-        db.close()
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        except SQLAlchemyError as e:
+            logger.error(f"Database error during request: {e}")
+            await session.rollback()
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error during database operation: {e}")
+            await session.rollback()
+            raise
 
 
-def verify_connection():
+async def verify_connection():
     """
     Verify database connection and log connection status.
     
@@ -76,9 +88,9 @@ def verify_connection():
     start_time = time.time()
     
     try:
-        with engine.connect() as conn:
+        async with engine.begin() as conn:
             # Simple query to verify connection
-            result = conn.execute(text("SELECT 1"))
+            result = await conn.execute(text("SELECT 1"))
             result.fetchone()
             connection_time = time.time() - start_time
             
@@ -109,14 +121,15 @@ def verify_connection():
         return False
 
 
-def init_db():
+async def init_db():
     """Initialize database - create all tables"""
     try:
-        Base.metadata.create_all(bind=engine)
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
         logger.info("Database initialized successfully! Tables created in configured database.")
         
         # Verify connection after initialization
-        if not verify_connection():
+        if not await verify_connection():
             logger.warning("Database initialization completed but connection verification failed")
     except SQLAlchemyError as e:
         logger.error(f"Database initialization failed: {e}")
@@ -124,4 +137,5 @@ def init_db():
 
 
 if __name__ == "__main__":
-    init_db()
+    import asyncio
+    asyncio.run(init_db())
