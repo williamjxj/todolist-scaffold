@@ -14,31 +14,53 @@ def _create_engine_from_settings():
 
     - Uses DATABASE_URL for the connection string.
     - Converts postgresql:// to postgresql+asyncpg:// for async support.
-    - Handles Supabase PostgreSQL connections with SSL requirements.
+    - Handles Supabase and Render PostgreSQL connections with SSL requirements.
+    - Resolves 'sslmode' incompatibility with asyncpg by moving it to connect_args.
     """
     url = settings.DATABASE_URL
+    connect_args = {}
     
     # Convert to async driver URL
     if url.startswith("postgresql://"):
         url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
     elif url.startswith("postgresql+psycopg://"):
-        # If someone mistakenly used psycopg, convert to asyncpg
         url = url.replace("postgresql+psycopg://", "postgresql+asyncpg://", 1)
-    
-    # Supabase and other PostgreSQL connections require SSL
-    if url.startswith("postgresql") and "supabase" in url.lower():
-        # Ensure SSL is required for Supabase connections
-        if "sslmode" not in url:
-            separator = "&" if "?" in url else "?"
-            url = f"{url}{separator}sslmode=require"
-        logger.info("Configuring Supabase PostgreSQL connection with SSL")
     
     # For SQLite, use aiosqlite
     if url.startswith("sqlite"):
         if not url.startswith("sqlite+aiosqlite"):
             url = url.replace("sqlite://", "sqlite+aiosqlite://", 1)
     
-    return create_async_engine(url, echo=False, future=True)
+    # Handle SSL configuration for asyncpg
+    if "asyncpg" in url:
+        import re
+        # If sslmode is in URL, asyncpg will fail because it doesn't recognize it as a kwarg.
+        # We extract it and use the 'ssl' argument instead.
+        if "sslmode" in url:
+            # Extract sslmode value (e.g., require, prefer, disable)
+            match = re.search(r'[?&]sslmode=([^&]+)', url)
+            if match:
+                ssl_mode = match.group(1)
+                if ssl_mode in ("require", "prefer", "allow", "verify-ca", "verify-full"):
+                    connect_args["ssl"] = True
+                    logger.info(f"Configuring asyncpg with SSL (detected sslmode={ssl_mode})")
+                
+                # Remove sslmode from URL to prevent asyncpg from seeing it
+                url = re.sub(r'[?&]sslmode=[^&]+', '', url)
+                # Clean up URL (handle remaining ? or &)
+                url = url.replace("?&", "?").replace("&&", "&").rstrip("?").rstrip("&")
+
+        # Special handling for Supabase and Render/Cloud databases which often require SSL
+        if "supabase" in url.lower() or ("render" in url.lower() and "ssl" not in connect_args):
+            if "ssl" not in connect_args:
+                connect_args["ssl"] = True
+                logger.info("Enabling SSL for cloud PostgreSQL connection (detected Supabase/Render)")
+
+    # Log the sanitized URL (password removed by SQLAlchemy automatically in logs, but we're careful)
+    # create_async_engine handles the logging if echo=True, but we'll log a summary
+    logger.debug(f"Creating engine for {url.split('@')[-1] if '@' in url else url}")
+    
+    return create_async_engine(url, connect_args=connect_args, echo=False, future=True)
 
 
 # Create async database engine

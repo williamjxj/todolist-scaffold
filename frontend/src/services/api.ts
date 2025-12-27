@@ -22,7 +22,7 @@ api.interceptors.response.use(
     if (error.code === 'ECONNABORTED') {
       throw new Error('Request timeout - please check if the backend server is running')
     }
-    
+
     // Check for CORS errors
     if (error.message?.includes('CORS') || error.message?.includes('Access-Control')) {
       const frontendUrl = window.location.origin
@@ -31,12 +31,12 @@ api.interceptors.response.use(
         `Please add ${frontendUrl} to CORS_ORIGINS environment variable on Render.com.`
       )
     }
-    
+
     if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
       const apiUrl = import.meta.env.VITE_API_URL || DEFAULT_API_URL
       throw new Error(`Cannot connect to backend server at ${apiUrl}`)
     }
-    
+
     throw error
   }
 )
@@ -49,13 +49,13 @@ export const todoApi = {
     if (priority) params.priority = priority
     if (category) params.category = category
 
-    const response = await api.get<TodoItem[]>('/todos', { params })
+    const response = await api.get<TodoItem[]>('/todos/', { params })
     return response.data
   },
 
   // Create new todo
   create: async (todo: TodoItemCreate): Promise<TodoItem> => {
-    const response = await api.post<TodoItem>('/todos', todo)
+    const response = await api.post<TodoItem>('/todos/', todo)
     return response.data
   },
 
