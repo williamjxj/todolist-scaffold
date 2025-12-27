@@ -100,40 +100,53 @@ function App() {
               />
               <div className="absolute -inset-1 bg-linear-to-r from-purple-400 to-blue-500 rounded-2xl blur opacity-20 -z-10" />
             </div>
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter text-left leading-tight">
+            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter text-center leading-tight">
               <ColourfulText text="Todo List Scaffold" />
             </h1>
           </div>
 
-          <div className="mt-8 flex items-center gap-4 w-full max-w-xl">
-            <div className="h-[1px] flex-1 bg-linear-to-r from-transparent via-gray-200 to-gray-200" />
-            <div className="flex items-center gap-4">
-              <p className="text-xs md:text-sm font-black uppercase tracking-[0.5em] text-gray-400/80 whitespace-nowrap">
+          <div className="mt-6 flex flex-col items-center gap-4 w-full">
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-gray-400/60 text-center">
                 Manage your tasks efficiently
               </p>
-              <div className="h-4 w-[1px] bg-gray-200" />
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] md:text-xs font-medium text-gray-400 uppercase tracking-widest whitespace-nowrap">
-                  Powered by
-                </span>
-                <a
-                  href="https://www.bestitconsulting.ca/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 group"
+
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setShowDemo(true)}
+                  className="flex items-center gap-1.5 group transition-all"
+                  aria-label="View Interactive Demo"
                 >
-                  <img
-                    src="/b11-logo.png"
-                    alt="Best IT Consulting"
-                    className="h-4 w-4 md:h-5 md:w-5 object-contain grayscale group-hover:grayscale-0 transition-all opacity-60 group-hover:opacity-100"
-                  />
-                  <span className="text-[10px] md:text-xs font-bold text-gray-400 group-hover:text-blue-600 transition-colors uppercase tracking-wider">
-                    best it consulting
+                  <Play className="w-3 h-3 text-gray-400 group-hover:text-blue-600 fill-current" />
+                  <span className="text-[10px] font-bold text-gray-400 group-hover:text-blue-600 transition-colors uppercase tracking-widest">
+                    view demo
                   </span>
-                </a>
+                </button>
+
+                <div className="h-3 w-[1px] bg-gray-200" />
+
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">
+                    Powered by
+                  </span>
+                  <a
+                    href="https://www.bestitconsulting.ca/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 group"
+                  >
+                    <img
+                      src="/b11-logo.png"
+                      alt="Best IT Consulting"
+                      className="h-3.5 w-3.5 object-contain grayscale group-hover:grayscale-0 transition-all opacity-40 group-hover:opacity-100"
+                    />
+                    <span className="text-[10px] font-bold text-gray-400 group-hover:text-blue-600 transition-colors uppercase tracking-wider">
+                      best it consulting
+                    </span>
+                  </a>
+                </div>
               </div>
             </div>
-            <div className="h-[1px] flex-1 bg-linear-to-r from-gray-200 via-gray-200 to-transparent" />
           </div>
         </header>
 
