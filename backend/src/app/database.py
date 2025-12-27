@@ -31,36 +31,56 @@ def _create_engine_from_settings():
         if not url.startswith("sqlite+aiosqlite"):
             url = url.replace("sqlite://", "sqlite+aiosqlite://", 1)
     
-    # Handle SSL configuration for asyncpg
+    # Handle SSL and PgBouncer configuration for asyncpg
     if "asyncpg" in url:
         import re
-        # If sslmode is in URL, asyncpg will fail because it doesn't recognize it as a kwarg.
-        # We extract it and use the 'ssl' argument instead.
-        if "sslmode" in url:
-            # Extract sslmode value (e.g., require, prefer, disable)
-            match = re.search(r'[?&]sslmode=([^&]+)', url)
-            if match:
-                ssl_mode = match.group(1)
-                if ssl_mode in ("require", "prefer", "allow", "verify-ca", "verify-full"):
-                    connect_args["ssl"] = True
-                    logger.info(f"Configuring asyncpg with SSL (detected sslmode={ssl_mode})")
-                
-                # Remove sslmode from URL to prevent asyncpg from seeing it
-                url = re.sub(r'[?&]sslmode=[^&]+', '', url)
-                # Clean up URL (handle remaining ? or &)
-                url = url.replace("?&", "?").replace("&&", "&").rstrip("?").rstrip("&")
+        from urllib.parse import urlparse, parse_qs, urlunparse, urlencode
 
-        # Special handling for Supabase and Render/Cloud databases which often require SSL
-        if "supabase" in url.lower() or ("render" in url.lower() and "ssl" not in connect_args):
-            if "ssl" not in connect_args:
-                connect_args["ssl"] = True
-                logger.info("Enabling SSL for cloud PostgreSQL connection (detected Supabase/Render)")
+        # Parse the URL to handle parameters robustly
+        parsed_url = urlparse(url)
+        params = parse_qs(parsed_url.query)
+        
+        # Handle sslmode
+        ssl_mode = params.get("sslmode", [None])[0]
+        if ssl_mode:
+            if ssl_mode in ("require", "prefer", "allow", "verify-ca", "verify-full"):
+                import ssl
+                ctx = ssl.create_default_context()
+                if ssl_mode in ("require", "prefer", "allow"):
+                    ctx.check_hostname = False
+                    ctx.verify_mode = ssl.CERT_NONE
+                connect_args["ssl"] = ctx
+                logger.info(f"Configuring asyncpg with SSL (sslmode={ssl_mode}, verification={'disabled' if ssl_mode in ('require', 'prefer', 'allow') else 'enabled'})")
 
-    # Log the sanitized URL (password removed by SQLAlchemy automatically in logs, but we're careful)
-    # create_async_engine handles the logging if echo=True, but we'll log a summary
-    logger.debug(f"Creating engine for {url.split('@')[-1] if '@' in url else url}")
+        # Strip incompatible parameters from the URL
+        # asyncpg doesn't support many standard libpq parameters in the connection string
+        incompatible_params = ["sslmode", "target_session_attrs", "pool_timeout"]
+        new_params = {k: v for k, v in params.items() if k not in incompatible_params}
+        
+        # Reconstruct URL without incompatible parameters
+        new_query = urlencode(new_params, doseq=True)
+        url = urlunparse(parsed_url._replace(query=new_query))
+
+        # Supabase and other poolers (PgBouncer) compatibility
+        if "supabase" in url.lower() or "pooler" in url.lower():
+            connect_args["statement_cache_size"] = 0
+            logger.info("Disabling asyncpg statement cache for PgBouncer compatibility (detected Supabase/pooler)")
+        elif "render" in url.lower() and "ssl" not in connect_args:
+            # Fallback for Render if sslmode wasn't specified
+            import ssl
+            connect_args["ssl"] = ssl.create_default_context()
+            logger.info("Enabling default SSL for Render PostgreSQL connection")
+
+    # Final URL sanitization for logging (hide password)
+    sanitized_url = re.sub(r':([^@]+)@', ':****@', url)
+    logger.debug(f"Connecting to database: {sanitized_url}")
     
-    return create_async_engine(url, connect_args=connect_args, echo=False, future=True)
+    return create_async_engine(
+        url, 
+        connect_args=connect_args, 
+        echo=False, 
+        future=True
+    )
 
 
 # Create async database engine
